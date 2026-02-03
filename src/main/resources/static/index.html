@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Manager | Groww-Style</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d09c;
+            --primary-dark: #00b386;
+            --secondary: #5367ff;
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-card-hover: #1c2128;
+            --border: #30363d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --success: #00d09c;
+            --danger: #f85149;
+            --warning: #d29922;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 20px 12px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 12px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex: 1;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: rgba(0, 208, 156, 0.1);
+            color: var(--primary);
+        }
+
+        .nav-link i {
+            width: 20px;
+        }
+
+        .wallet-mini {
+            background: linear-gradient(135deg, var(--primary-dark), #004d40);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: auto;
+        }
+
+        .wallet-mini-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .wallet-mini-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        /* Main */
+        .main-content {
+            margin-left: 240px;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 16px;
+            width: 320px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            width: 100%;
+            outline: none;
+        }
+
+        .search-box i {
+            color: var(--text-muted);
+        }
+
+        /* Page Content */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Stat Cards */
+        .stat-card {
+            background: linear-gradient(135deg, #1a1f35, var(--bg-card));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-card.primary {
+            background: linear-gradient(135deg, var(--primary-dark), #004d40);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .stat-change.positive {
+            background: rgba(0, 208, 156, 0.15);
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--danger);
+        }
+
+        /* Stock List */
+        .stock-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stock-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--bg-dark);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .stock-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stock-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .stock-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .stock-ticker {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .stock-price {
+            text-align: right;
+        }
+
+        .stock-price-value {
+            font-weight: 600;
+        }
+
+        .stock-change {
+            font-size: 0.8rem;
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        tr:hover {
+            background: var(--bg-card-hover);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-buy {
+            background: var(--success);
+            color: var(--bg-dark);
+        }
+
+        .btn-sell {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+
+        /* Mutual Funds */
+        .mf-card {
+            background: var(--bg-dark);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mf-card:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .mf-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mf-house {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .mf-stats {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .mf-stat {
+            text-align: center;
+        }
+
+        .mf-stat-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .mf-stat-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Charts */
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+
+        .chart-container.large {
+            height: 300px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Stock Detail Modal */
+        .stock-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .stock-detail-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .stock-detail-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .stock-detail-ticker {
+            color: var(--text-muted);
+        }
+
+        .stock-detail-price {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 16px 0;
+        }
+
+        .stock-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stock-detail-item {
+            background: var(--bg-dark);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .stock-detail-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .stock-detail-value {
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            z-index: 2000;
+            animation: toastIn 0.3s;
+        }
+
+        .toast.success {
+            background: var(--success);
+            color: var(--bg-dark);
+        }
+
+        .toast.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        @keyframes toastIn {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .tag-buy {
+            background: rgba(0, 208, 156, 0.15);
+            color: var(--success);
+        }
+
+        .tag-sell {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--danger);
+        }
+
+        .tag-completed {
+            background: rgba(0, 208, 156, 0.15);
+            color: var(--success);
+        }
+
+        .tag-pending {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .grid-4 {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">📈</div>
+            <span class="logo-text">Folio</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a class="nav-link active" data-page="explore">
+                    <i class="fas fa-compass"></i> Explore
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-page="holdings">
+                    <i class="fas fa-wallet"></i> Holdings
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-page="orders">
+                    <i class="fas fa-exchange-alt"></i> Orders
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-page="watchlist">
+                    <i class="fas fa-star"></i> Watchlist
+                </a>
+            </li>
+        </ul>
+        <div class="wallet-mini">
+            <div class="wallet-mini-label">Portfolio Value</div>
+            <div class="wallet-mini-value" id="sidebarValue">$0.00</div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- EXPLORE PAGE -->
+        <div id="page-explore" class="page active">
+            <div class="header">
+                <h1 class="page-title">Explore</h1>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="exploreSearch" placeholder="Search stocks..."
+                        onkeypress="if(event.key==='Enter') searchStock()">
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-bottom: 20px;">
+                <div>
+                    <!-- Top Gainers -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-arrow-trend-up" style="color: var(--success);"></i>
+                                Top Gainers</h3>
+                        </div>
+                        <div class="stock-list" id="topGainers">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                    <!-- Top Losers -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-arrow-trend-down" style="color: var(--danger);"></i>
+                                Top Losers</h3>
+                        </div>
+                        <div class="stock-list" id="topLosers">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <!-- Investment Summary -->
+                    <div class="card" style="background: linear-gradient(135deg, var(--primary-dark), #004d40);">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-chart-pie"></i> Your Investments</h3>
+                        </div>
+                        <div class="stat-value" id="exploreCurrentValue" style="font-size: 2rem; margin-bottom: 12px;">
+                            $0.00</div>
+                        <div class="stat-change positive" id="exploreReturn">+0.00%</div>
+                        <div style="margin-top: 20px; display: flex; gap: 10px;">
+                            <button class="btn btn-secondary" onclick="showPage('holdings')">View Holdings</button>
+                        </div>
+                    </div>
+                    <!-- Top Mutual Funds -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-landmark" style="color: var(--secondary);"></i> Top
+                                Mutual Funds</h3>
+                        </div>
+                        <div id="topMutualFunds">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOLDINGS PAGE -->
+        <div id="page-holdings" class="page">
+            <div class="header">
+                <h1 class="page-title">Holdings</h1>
+                <button class="btn btn-primary" onclick="openBuyModal()"><i class="fas fa-plus"></i> Buy Stock</button>
+            </div>
+
+            <!-- Portfolio Stats -->
+            <div class="grid-4" style="margin-bottom: 20px;">
+                <div class="stat-card primary">
+                    <div class="stat-label">Current Value</div>
+                    <div class="stat-value" id="holdingsCurrentValue">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Invested</div>
+                    <div class="stat-value" id="holdingsTotalInvested">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total P&L</div>
+                    <div class="stat-value" id="holdingsProfitLoss">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Returns</div>
+                    <div class="stat-value" id="holdingsReturns">0.00%</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <!-- Holdings List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Your Stocks</h3>
+                    </div>
+                    <div class="table-container">
+                        <table id="holdingsTable">
+                            <thead>
+                                <tr>
+                                    <th>Stock</th>
+                                    <th>Qty</th>
+                                    <th>Avg Price</th>
+                                    <th>Current</th>
+                                    <th>P&L</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="holdingsBody">
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Portfolio Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Portfolio Allocation</h3>
+                    </div>
+                    <div class="chart-container large">
+                        <canvas id="allocationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORDERS PAGE -->
+        <div id="page-orders" class="page">
+            <div class="header">
+                <h1 class="page-title">Orders</h1>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Transaction History</h3>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Stock</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersBody">
+                            <tr>
+                                <td colspan="7">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- WATCHLIST PAGE -->
+        <div id="page-watchlist" class="page">
+            <div class="header">
+                <h1 class="page-title">Watchlist</h1>
+                <button class="btn btn-primary" onclick="openAddWatchlistModal()"><i class="fas fa-plus"></i> Add
+                    Stock</button>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Saved Stocks</h3>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Stock</th>
+                                <th>Current Price</th>
+                                <th>Change</th>
+                                <th>Added On</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="watchlistBody">
+                            <tr>
+                                <td colspan="5">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Buy/Sell Modal -->
+    <div class="modal-overlay" id="tradeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="tradeModalTitle">Buy Stock</h3>
+                <button class="modal-close" onclick="closeTradeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="executeTrade(event)">
+                <div class="form-group">
+                    <label class="form-label">Stock Symbol</label>
+                    <input type="text" class="form-input" id="tradeTicker" placeholder="e.g., AAPL" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" class="form-input" id="tradeQuantity" placeholder="10" step="0.01"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Price ($)</label>
+                        <input type="number" class="form-input" id="tradePrice" placeholder="150.00" step="0.01"
+                            required>
+                    </div>
+                </div>
+                <input type="hidden" id="tradeType" value="BUY">
+                <button type="submit" class="btn btn-primary" id="tradeSubmitBtn" style="width: 100%;">
+                    <i class="fas fa-check"></i> Place Order
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add to Watchlist Modal -->
+    <div class="modal-overlay" id="watchlistModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add to Watchlist</h3>
+                <button class="modal-close" onclick="closeWatchlistModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="addToWatchlist(event)">
+                <div class="form-group">
+                    <label class="form-label">Stock Symbol</label>
+                    <input type="text" class="form-input" id="watchlistTicker" placeholder="e.g., GOOGL" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes (Optional)</label>
+                    <input type="text" class="form-input" id="watchlistNotes" placeholder="Why are you watching this?">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-star"></i> Add to Watchlist
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock Detail Modal -->
+    <div class="modal-overlay" id="stockDetailModal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Stock Details</h3>
+                <button class="modal-close" onclick="closeStockDetailModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="stockDetailContent">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        let currentPage = 'explore';
+        let holdingsData = [];
+        let allocationChart;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupNavigation();
+            loadExplorePage();
+        });
+
+        // Navigation
+        function setupNavigation() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    const page = link.dataset.page;
+                    showPage(page);
+                });
+            });
+        }
+
+        function showPage(page) {
+            currentPage = page;
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(`page-${page}`).classList.add('active');
+            document.querySelector(`[data-page="${page}"]`).classList.add('active');
+
+            switch (page) {
+                case 'explore': loadExplorePage(); break;
+                case 'holdings': loadHoldingsPage(); break;
+                case 'orders': loadOrdersPage(); break;
+                case 'watchlist': loadWatchlistPage(); break;
+            }
+        }
+
+        // EXPLORE PAGE
+        async function loadExplorePage() {
+            loadTopGainers();
+            loadTopLosers();
+            loadTopMutualFunds();
+            loadPortfolioMini();
+        }
+
+        async function loadTopGainers() {
+            try {
+                const res = await fetch(`${API_BASE}/market/gainers`);
+                const data = await res.json();
+                renderStockList('topGainers', data);
+            } catch { document.getElementById('topGainers').innerHTML = '<div class="empty-state">Failed to load</div>'; }
+        }
+
+        async function loadTopLosers() {
+            try {
+                const res = await fetch(`${API_BASE}/market/losers`);
+                const data = await res.json();
+                renderStockList('topLosers', data);
+            } catch { document.getElementById('topLosers').innerHTML = '<div class="empty-state">Failed to load</div>'; }
+        }
+
+        async function loadTopMutualFunds() {
+            try {
+                const res = await fetch(`${API_BASE}/market/mutualfunds`);
+                const data = await res.json();
+                renderMutualFunds(data.slice(0, 4));
+            } catch { document.getElementById('topMutualFunds').innerHTML = '<div class="empty-state">Failed to load</div>'; }
+        }
+
+        async function loadPortfolioMini() {
+            try {
+                const res = await fetch(`${API_BASE}/portfolio/summary`);
+                const data = await res.json();
+                const current = parseFloat(data.currentValue);
+                const ret = parseFloat(data.returnPercent);
+                document.getElementById('sidebarValue').textContent = formatCurrency(current);
+                document.getElementById('exploreCurrentValue').textContent = formatCurrency(current);
+                const retEl = document.getElementById('exploreReturn');
+                retEl.textContent = `${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%`;
+                retEl.className = `stat-change ${ret >= 0 ? 'positive' : 'negative'}`;
+            } catch { }
+        }
+
+        function renderStockList(containerId, stocks) {
+            const container = document.getElementById(containerId);
+            if (!stocks.length) {
+                container.innerHTML = '<div class="empty-state">No data available</div>';
+                return;
+            }
+            container.innerHTML = stocks.map(s => {
+                const isPositive = parseFloat(s.changePercent) >= 0;
+                return `
+                    <div class="stock-item" onclick="openStockDetail('${s.ticker}')">
+                        <div class="stock-info">
+                            <div class="stock-icon">${s.ticker.substring(0, 2)}</div>
+                            <div>
+                                <div class="stock-name">${s.name || s.ticker}</div>
+                                <div class="stock-ticker">${s.ticker}</div>
+                            </div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="stock-price-value">${formatCurrency(s.price)}</div>
+                            <div class="stock-change ${isPositive ? 'positive' : 'negative'}">
+                                ${isPositive ? '+' : ''}${parseFloat(s.changePercent).toFixed(2)}%
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderMutualFunds(funds) {
+            const container = document.getElementById('topMutualFunds');
+            container.innerHTML = `<div class="grid-2" style="gap: 10px;">
+                ${funds.map(f => `
+                    <div class="mf-card">
+                        <div class="mf-name">${f.schemeName}</div>
+                        <div class="mf-house">${f.fundHouse}</div>
+                        <div class="mf-stats">
+                            <div class="mf-stat">
+                                <div class="mf-stat-label">NAV</div>
+                                <div class="mf-stat-value">₹${parseFloat(f.nav).toFixed(2)}</div>
+                            </div>
+                            <div class="mf-stat">
+                                <div class="mf-stat-label">1Y Return</div>
+                                <div class="mf-stat-value positive">${parseFloat(f.oneYearReturn).toFixed(1)}%</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>`;
+        }
+
+        // HOLDINGS PAGE
+        async function loadHoldingsPage() {
+            await loadHoldings();
+            await loadPortfolioSummary();
+            renderAllocationChart();
+        }
+
+        async function loadHoldings() {
+            try {
+                const res = await fetch(`${API_BASE}/holdings`);
+                holdingsData = await res.json();
+                await enrichHoldings();
+                renderHoldingsTable();
+            } catch { document.getElementById('holdingsBody').innerHTML = '<tr><td colspan="6" class="empty-state">Failed to load</td></tr>'; }
+        }
+
+        async function enrichHoldings() {
+            for (let h of holdingsData) {
+                try {
+                    const res = await fetch(`${API_BASE}/prices/${h.ticker}`);
+                    const price = await res.json();
+                    h.currentPrice = parseFloat(price.price);
+                    h.currentValue = h.currentPrice * parseFloat(h.quantity);
+                    h.invested = parseFloat(h.quantity) * parseFloat(h.avgBuyPrice);
+                    h.pl = h.currentValue - h.invested;
+                    h.plPercent = (h.pl / h.invested) * 100;
+                } catch {
+                    h.currentPrice = parseFloat(h.avgBuyPrice);
+                    h.currentValue = parseFloat(h.quantity) * h.currentPrice;
+                    h.invested = h.currentValue;
+                    h.pl = 0;
+                    h.plPercent = 0;
+                }
+            }
+        }
+
+        function renderHoldingsTable() {
+            const tbody = document.getElementById('holdingsBody');
+            if (!holdingsData.length) {
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-wallet"></i><p>No holdings yet. Buy your first stock!</p></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = holdingsData.map(h => {
+                const isPositive = h.pl >= 0;
+                return `
+                    <tr>
+                        <td>
+                            <div class="stock-info">
+                                <div class="stock-icon">${h.ticker.substring(0, 2)}</div>
+                                <div>
+                                    <div class="stock-name">${h.ticker}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${parseFloat(h.quantity).toFixed(2)}</td>
+                        <td>${formatCurrency(h.avgBuyPrice)}</td>
+                        <td>${formatCurrency(h.currentPrice)}</td>
+                        <td class="${isPositive ? 'positive' : 'negative'}">
+                            ${isPositive ? '+' : ''}${formatCurrency(h.pl)}<br>
+                            <small>${isPositive ? '+' : ''}${h.plPercent.toFixed(2)}%</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-sell" onclick="openSellModal('${h.ticker}', ${h.quantity}, ${h.currentPrice})">Sell</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadPortfolioSummary() {
+            try {
+                const res = await fetch(`${API_BASE}/portfolio/summary`);
+                const data = await res.json();
+                document.getElementById('holdingsCurrentValue').textContent = formatCurrency(data.currentValue);
+                document.getElementById('holdingsTotalInvested').textContent = formatCurrency(data.totalInvested);
+                const pl = parseFloat(data.profitLoss);
+                const ret = parseFloat(data.returnPercent);
+                document.getElementById('holdingsProfitLoss').textContent = `${pl >= 0 ? '+' : ''}${formatCurrency(pl)}`;
+                document.getElementById('holdingsProfitLoss').style.color = pl >= 0 ? 'var(--success)' : 'var(--danger)';
+                document.getElementById('holdingsReturns').textContent = `${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%`;
+                document.getElementById('holdingsReturns').style.color = ret >= 0 ? 'var(--success)' : 'var(--danger)';
+            } catch { }
+        }
+
+        function renderAllocationChart() {
+            if (!holdingsData.length) return;
+            const ctx = document.getElementById('allocationChart').getContext('2d');
+            const colors = ['#00d09c', '#5367ff', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4', '#8bc34a', '#ff5722'];
+            if (allocationChart) allocationChart.destroy();
+            allocationChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: holdingsData.map(h => h.ticker),
+                    datasets: [{
+                        data: holdingsData.map(h => h.currentValue),
+                        backgroundColor: colors.slice(0, holdingsData.length),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: { legend: { position: 'bottom', labels: { color: '#8b949e' } } }
+                }
+            });
+        }
+
+        // ORDERS PAGE
+        async function loadOrdersPage() {
+            try {
+                const res = await fetch(`${API_BASE}/orders`);
+                const orders = await res.json();
+                renderOrdersTable(orders);
+            } catch { document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7" class="empty-state">Failed to load</td></tr>'; }
+        }
+
+        function renderOrdersTable(orders) {
+            const tbody = document.getElementById('ordersBody');
+            if (!orders.length) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-exchange-alt"></i><p>No orders yet</p></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = orders.map(o => `
+                <tr>
+                    <td>${new Date(o.createdAt).toLocaleString()}</td>
+                    <td><strong>${o.ticker}</strong></td>
+                    <td><span class="tag tag-${o.orderType.toLowerCase()}">${o.orderType}</span></td>
+                    <td>${parseFloat(o.quantity).toFixed(2)}</td>
+                    <td>${formatCurrency(o.price)}</td>
+                    <td><strong>${formatCurrency(o.totalAmount)}</strong></td>
+                    <td><span class="tag tag-${o.status.toLowerCase()}">${o.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // WATCHLIST PAGE
+        async function loadWatchlistPage() {
+            try {
+                const res = await fetch(`${API_BASE}/watchlist`);
+                const items = await res.json();
+                renderWatchlist(items);
+            } catch { document.getElementById('watchlistBody').innerHTML = '<tr><td colspan="5" class="empty-state">Failed to load</td></tr>'; }
+        }
+
+        function renderWatchlist(items) {
+            const tbody = document.getElementById('watchlistBody');
+            if (!items.length) {
+                tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-star"></i><p>Your watchlist is empty</p></div></td></tr>';
+                return;
+            }
+            tbody.innerHTML = items.map(w => {
+                const isPositive = parseFloat(w.changePercent) >= 0;
+                return `
+                    <tr>
+                        <td>
+                            <div class="stock-info">
+                                <div class="stock-icon">${w.ticker.substring(0, 2)}</div>
+                                <div>
+                                    <div class="stock-name">${w.companyName || w.ticker}</div>
+                                    <div class="stock-ticker">${w.ticker}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${formatCurrency(w.currentPrice)}</td>
+                        <td class="${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${parseFloat(w.changePercent).toFixed(2)}%</td>
+                        <td>${new Date(w.addedAt).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-buy" onclick="openBuyModalFor('${w.ticker}')">Buy</button>
+                            <button class="btn-icon" onclick="removeFromWatchlist(${w.id})" title="Remove"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // MODALS
+        function openBuyModal() {
+            document.getElementById('tradeModalTitle').textContent = 'Buy Stock';
+            document.getElementById('tradeType').value = 'BUY';
+            document.getElementById('tradeSubmitBtn').className = 'btn btn-buy';
+            document.getElementById('tradeSubmitBtn').innerHTML = '<i class="fas fa-shopping-cart"></i> Buy';
+            document.getElementById('tradeTicker').value = '';
+            document.getElementById('tradeQuantity').value = '';
+            document.getElementById('tradePrice').value = '';
+            document.getElementById('tradeModal').classList.add('active');
+        }
+
+        function openBuyModalFor(ticker) {
+            openBuyModal();
+            document.getElementById('tradeTicker').value = ticker;
+            fetchCurrentPrice(ticker);
+        }
+
+        function openSellModal(ticker, qty, price) {
+            document.getElementById('tradeModalTitle').textContent = 'Sell Stock';
+            document.getElementById('tradeType').value = 'SELL';
+            document.getElementById('tradeSubmitBtn').className = 'btn btn-sell';
+            document.getElementById('tradeSubmitBtn').innerHTML = '<i class="fas fa-dollar-sign"></i> Sell';
+            document.getElementById('tradeTicker').value = ticker;
+            document.getElementById('tradeQuantity').value = qty;
+            document.getElementById('tradePrice').value = price.toFixed(2);
+            document.getElementById('tradeModal').classList.add('active');
+        }
+
+        function closeTradeModal() { document.getElementById('tradeModal').classList.remove('active'); }
+
+        async function fetchCurrentPrice(ticker) {
+            try {
+                const res = await fetch(`${API_BASE}/prices/${ticker}`);
+                const data = await res.json();
+                document.getElementById('tradePrice').value = parseFloat(data.price).toFixed(2);
+            } catch { }
+        }
+
+        async function executeTrade(e) {
+            e.preventDefault();
+            const ticker = document.getElementById('tradeTicker').value.toUpperCase();
+            const quantity = parseFloat(document.getElementById('tradeQuantity').value);
+            const price = parseFloat(document.getElementById('tradePrice').value);
+            const orderType = document.getElementById('tradeType').value;
+
+            try {
+                const res = await fetch(`${API_BASE}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticker, quantity, price, orderType })
+                });
+                if (res.ok) {
+                    showToast(`${orderType} order for ${ticker} executed!`, 'success');
+                    closeTradeModal();
+                    if (currentPage === 'holdings') loadHoldingsPage();
+                    else if (currentPage === 'orders') loadOrdersPage();
+                    loadPortfolioMini();
+                } else {
+                    const err = await res.json();
+                    showToast(err.message || 'Order failed', 'error');
+                }
+            } catch { showToast('Order failed', 'error'); }
+        }
+
+        function openAddWatchlistModal() { document.getElementById('watchlistModal').classList.add('active'); }
+        function closeWatchlistModal() { document.getElementById('watchlistModal').classList.remove('active'); }
+
+        async function addToWatchlist(e) {
+            e.preventDefault();
+            const ticker = document.getElementById('watchlistTicker').value.toUpperCase();
+            const notes = document.getElementById('watchlistNotes').value;
+            try {
+                const res = await fetch(`${API_BASE}/watchlist`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticker, notes })
+                });
+                if (res.ok) {
+                    showToast(`${ticker} added to watchlist!`, 'success');
+                    closeWatchlistModal();
+                    document.getElementById('watchlistTicker').value = '';
+                    document.getElementById('watchlistNotes').value = '';
+                    loadWatchlistPage();
+                } else {
+                    const err = await res.json();
+                    showToast(err.message || 'Failed to add', 'error');
+                }
+            } catch { showToast('Failed to add to watchlist', 'error'); }
+        }
+
+        async function removeFromWatchlist(id) {
+            if (!confirm('Remove from watchlist?')) return;
+            try {
+                await fetch(`${API_BASE}/watchlist/${id}`, { method: 'DELETE' });
+                showToast('Removed from watchlist', 'success');
+                loadWatchlistPage();
+            } catch { showToast('Failed to remove', 'error'); }
+        }
+
+        function openStockDetail(ticker) {
+            document.getElementById('stockDetailModal').classList.add('active');
+            loadStockDetail(ticker);
+        }
+
+        function closeStockDetailModal() { document.getElementById('stockDetailModal').classList.remove('active'); }
+
+        async function loadStockDetail(ticker) {
+            const container = document.getElementById('stockDetailContent');
+            container.innerHTML = '<div class="spinner"></div>';
+            try {
+                const res = await fetch(`${API_BASE}/market/stock/${ticker}`);
+                const s = await res.json();
+                const isPositive = parseFloat(s.changePercent) >= 0;
+                container.innerHTML = `
+                    <div class="stock-detail-header">
+                        <div class="stock-detail-icon">${s.ticker.substring(0, 2)}</div>
+                        <div>
+                            <div class="stock-detail-name">${s.name || s.ticker}</div>
+                            <div class="stock-detail-ticker">${s.ticker} • ${s.exchange || 'NASDAQ'}</div>
+                        </div>
+                    </div>
+                    <div class="stock-detail-price">
+                        ${formatCurrency(s.price)}
+                        <span class="stat-change ${isPositive ? 'positive' : 'negative'}" style="font-size: 1rem; margin-left: 8px;">
+                            ${isPositive ? '+' : ''}${parseFloat(s.changePercent).toFixed(2)}%
+                        </span>
+                    </div>
+                    <div class="stock-detail-grid">
+                        <div class="stock-detail-item">
+                            <div class="stock-detail-label">Open</div>
+                            <div class="stock-detail-value">${formatCurrency(s.open)}</div>
+                        </div>
+                        <div class="stock-detail-item">
+                            <div class="stock-detail-label">High</div>
+                            <div class="stock-detail-value">${formatCurrency(s.high)}</div>
+                        </div>
+                        <div class="stock-detail-item">
+                            <div class="stock-detail-label">Low</div>
+                            <div class="stock-detail-value">${formatCurrency(s.low)}</div>
+                        </div>
+                        <div class="stock-detail-item">
+                            <div class="stock-detail-label">Previous Close</div>
+                            <div class="stock-detail-value">${formatCurrency(s.previousClose)}</div>
+                        </div>
+                        <div class="stock-detail-item">
+                            <div class="stock-detail-label">Volume</div>
+                            <div class="stock-detail-value">${s.volume ? s.volume.toLocaleString() : 'N/A'}</div>
+                        </div>
+                        <div class="stock-detail-item">
+                            <div class="stock-detail-label">Market Cap</div>
+                            <div class="stock-detail-value">${s.marketCap ? formatLargeNumber(s.marketCap) : 'N/A'}</div>
+                        </div>
+                        <div class="stock-detail-item">
+                            <div class="stock-detail-label">P/E Ratio</div>
+                            <div class="stock-detail-value">${s.peRatio ? parseFloat(s.peRatio).toFixed(2) : 'N/A'}</div>
+                        </div>
+                        <div class="stock-detail-item">
+                            <div class="stock-detail-label">EPS</div>
+                            <div class="stock-detail-value">${s.eps ? formatCurrency(s.eps) : 'N/A'}</div>
+                        </div>
+                        <div class="stock-detail-item">
+                            <div class="stock-detail-label">52W High</div>
+                            <div class="stock-detail-value">${formatCurrency(s.fiftyTwoWeekHigh)}</div>
+                        </div>
+                        <div class="stock-detail-item">
+                            <div class="stock-detail-label">52W Low</div>
+                            <div class="stock-detail-value">${formatCurrency(s.fiftyTwoWeekLow)}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-buy" onclick="openBuyModalFor('${s.ticker}'); closeStockDetailModal();">
+                            <i class="fas fa-shopping-cart"></i> Buy
+                        </button>
+                        <button class="btn btn-secondary" onclick="quickAddToWatchlist('${s.ticker}')">
+                            <i class="fas fa-star"></i> Watchlist
+                        </button>
+                    </div>
+                `;
+            } catch { container.innerHTML = '<div class="empty-state">Failed to load stock details</div>'; }
+        }
+
+        async function quickAddToWatchlist(ticker) {
+            try {
+                await fetch(`${API_BASE}/watchlist`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticker })
+                });
+                showToast(`${ticker} added to watchlist!`, 'success');
+            } catch { showToast('Failed to add', 'error'); }
+        }
+
+        function searchStock() {
+            const ticker = document.getElementById('exploreSearch').value.trim().toUpperCase();
+            if (ticker) openStockDetail(ticker);
+        }
+
+        // Utilities
+        function formatCurrency(val) {
+            return '$' + parseFloat(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatLargeNumber(val) {
+            const num = parseFloat(val);
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            return num.toLocaleString();
+        }
+
+        function showToast(msg, type) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>${msg}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Close modals on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', e => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+
+</html>

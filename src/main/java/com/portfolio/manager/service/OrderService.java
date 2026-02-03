@@ -48,14 +48,16 @@ public class OrderService {
                 orderType, ticker, quantity, currentPrice);
 
         Portfolio portfolio = portfolioService.getPortfolioEntity();
+        // Initialize cash balance if null (for existing records)
+        portfolio.initializeCashBalanceIfNull();
 
         // Validate order
         if (orderType == Order.OrderType.BUY) {
             // Check if user has enough cash
-            if (portfolio.getCashBalance().compareTo(totalAmount) < 0) {
+            if (portfolio.getCashBalanceSafe().compareTo(totalAmount) < 0) {
                 throw new BadRequestException(
                         String.format("Insufficient funds. You have $%.2f but need $%.2f to buy %s shares of %s",
-                                portfolio.getCashBalance(), totalAmount, quantity, ticker));
+                                portfolio.getCashBalanceSafe(), totalAmount, quantity, ticker));
             }
         } else { // SELL
             // Check if user has enough shares
@@ -85,11 +87,11 @@ public class OrderService {
 
         // Update wallet balance
         if (orderType == Order.OrderType.BUY) {
-            portfolio.setCashBalance(portfolio.getCashBalance().subtract(totalAmount));
-            log.info("Deducted ${} from wallet. New balance: ${}", totalAmount, portfolio.getCashBalance());
+            portfolio.setCashBalance(portfolio.getCashBalanceSafe().subtract(totalAmount));
+            log.info("Deducted ${} from wallet. New balance: ${}", totalAmount, portfolio.getCashBalanceSafe());
         } else {
-            portfolio.setCashBalance(portfolio.getCashBalance().add(totalAmount));
-            log.info("Added ${} to wallet. New balance: ${}", totalAmount, portfolio.getCashBalance());
+            portfolio.setCashBalance(portfolio.getCashBalanceSafe().add(totalAmount));
+            log.info("Added ${} to wallet. New balance: ${}", totalAmount, portfolio.getCashBalanceSafe());
         }
         portfolioRepository.save(portfolio);
 

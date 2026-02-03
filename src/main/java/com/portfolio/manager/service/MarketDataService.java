@@ -18,6 +18,7 @@ import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
@@ -25,6 +26,10 @@ public class MarketDataService {
 
     private static final List<String> US_STOCKS = Arrays.asList(
             "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "NVDA", "JPM", "V", "WMT");
+
+    // Cache for market data (1 hour TTL)
+    private static final long CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+    private final Map<String, CachedData<List<MarketMoverResponse>>> marketCache = new ConcurrentHashMap<>();
 
     private static final Map<String, MockStockData> MOCK_STOCKS = new HashMap<>();
 
@@ -50,6 +55,77 @@ public class MarketDataService {
         MOCK_STOCKS.put("NFLX", new MockStockData("Netflix Inc.", 545.20, 1.5, 236e9, 42.3, "Technology", "Streaming"));
         MOCK_STOCKS.put("DIS",
                 new MockStockData("Walt Disney Co.", 112.45, -0.2, 205e9, 68.5, "Consumer Cyclical", "Entertainment"));
+    }
+
+    // Cached wrapper class
+    private static class CachedData<T> {
+        T data;
+        long timestamp;
+
+        CachedData(T data) {
+            this.data = data;
+            this.timestamp = System.currentTimeMillis();
+        }
+
+        boolean isExpired() {
+            return System.currentTimeMillis() - timestamp > CACHE_TTL_MS;
+        }
+    }
+
+    public List<MarketMoverResponse> getTopGainers() {
+        CachedData<List<MarketMoverResponse>> cached = marketCache.get("gainers");
+        if (cached != null && !cached.isExpired()) {
+            log.debug("Returning cached gainers data");
+            return cached.data;
+        }
+
+        log.info("Fetching fresh top gainers data");
+        List<MarketMoverResponse> gainers = new ArrayList<>();
+
+        for (String ticker : US_STOCKS) {
+            try {
+                StockDetailResponse stock = getStockDetail(ticker);
+                if (stock.getChangePercent() != null && stock.getChangePercent().compareTo(BigDecimal.ZERO) > 0) {
+                    gainers.add(toMarketMover(stock));
+                }
+            } catch (Exception e) {
+                log.warn("Error fetching {}: {}", ticker, e.getMessage());
+            }
+        }
+
+        gainers.sort((a, b) -> b.getChangePercent().compareTo(a.getChangePercent()));
+        List<MarketMoverResponse> result = gainers.stream().limit(5).toList();
+
+        marketCache.put("gainers", new CachedData<>(result));
+        return result;
+    }
+
+    public List<MarketMoverResponse> getTopLosers() {
+        CachedData<List<MarketMoverResponse>> cached = marketCache.get("losers");
+        if (cached != null && !cached.isExpired()) {
+            log.debug("Returning cached losers data");
+            return cached.data;
+        }
+
+        log.info("Fetching fresh top losers data");
+        List<MarketMoverResponse> losers = new ArrayList<>();
+
+        for (String ticker : US_STOCKS) {
+            try {
+                StockDetailResponse stock = getStockDetail(ticker);
+                if (stock.getChangePercent() != null && stock.getChangePercent().compareTo(BigDecimal.ZERO) < 0) {
+                    losers.add(toMarketMover(stock));
+                }
+            } catch (Exception e) {
+                log.warn("Error fetching {}: {}", ticker, e.getMessage());
+            }
+        }
+
+        losers.sort(Comparator.comparing(MarketMoverResponse::getChangePercent));
+        List<MarketMoverResponse> result = losers.stream().limit(5).toList();
+
+        marketCache.put("losers", new CachedData<>(result));
+        return result;
     }
 
     public StockHistoryResponse getStockWithHistory(String ticker) {
@@ -273,44 +349,6 @@ public class MarketDataService {
                 .industry(mock.industry)
                 .timestamp(LocalDateTime.now().toString())
                 .build();
-    }
-
-    public List<MarketMoverResponse> getTopGainers() {
-        log.info("Fetching top gainers");
-        List<MarketMoverResponse> gainers = new ArrayList<>();
-
-        for (String ticker : US_STOCKS) {
-            try {
-                StockDetailResponse stock = getStockDetail(ticker);
-                if (stock.getChangePercent() != null && stock.getChangePercent().compareTo(BigDecimal.ZERO) > 0) {
-                    gainers.add(toMarketMover(stock));
-                }
-            } catch (Exception e) {
-                log.warn("Error fetching {}: {}", ticker, e.getMessage());
-            }
-        }
-
-        gainers.sort((a, b) -> b.getChangePercent().compareTo(a.getChangePercent()));
-        return gainers.stream().limit(5).toList();
-    }
-
-    public List<MarketMoverResponse> getTopLosers() {
-        log.info("Fetching top losers");
-        List<MarketMoverResponse> losers = new ArrayList<>();
-
-        for (String ticker : US_STOCKS) {
-            try {
-                StockDetailResponse stock = getStockDetail(ticker);
-                if (stock.getChangePercent() != null && stock.getChangePercent().compareTo(BigDecimal.ZERO) < 0) {
-                    losers.add(toMarketMover(stock));
-                }
-            } catch (Exception e) {
-                log.warn("Error fetching {}: {}", ticker, e.getMessage());
-            }
-        }
-
-        losers.sort(Comparator.comparing(MarketMoverResponse::getChangePercent));
-        return losers.stream().limit(5).toList();
     }
 
     private MarketMoverResponse toMarketMover(StockDetailResponse stock) {

@@ -26,12 +26,13 @@ public class PortfolioAnalyticsService {
         log.info("Calculating portfolio summary");
 
         Portfolio portfolio = portfolioService.getPortfolioEntity();
+        BigDecimal cashBalance = portfolio.getCashBalanceSafe();
         List<Holding> holdings = holdingService.getAllHoldingEntities();
 
         if (holdings.isEmpty()) {
             log.info("No holdings found, returning wallet balance only");
             return PortfolioSummaryResponse.builder()
-                    .cashBalance(portfolio.getCashBalance().setScale(2, RoundingMode.HALF_UP))
+                    .cashBalance(cashBalance.setScale(2, RoundingMode.HALF_UP))
                     .totalInvested(BigDecimal.ZERO)
                     .currentValue(BigDecimal.ZERO)
                     .profitLoss(BigDecimal.ZERO)
@@ -43,11 +44,9 @@ public class PortfolioAnalyticsService {
         BigDecimal currentValue = BigDecimal.ZERO;
 
         for (Holding holding : holdings) {
-            // Calculate invested amount: quantity * avgBuyPrice
             BigDecimal investedAmount = holding.getQuantity().multiply(holding.getAvgBuyPrice());
             totalInvested = totalInvested.add(investedAmount);
 
-            // Get current price and calculate current value
             BigDecimal currentPrice = yahooFinanceService.getPrice(holding.getTicker());
             BigDecimal holdingValue = holding.getQuantity().multiply(currentPrice);
             currentValue = currentValue.add(holdingValue);
@@ -56,10 +55,8 @@ public class PortfolioAnalyticsService {
                     holding.getTicker(), investedAmount, currentPrice, holdingValue);
         }
 
-        // Calculate profit/loss
         BigDecimal profitLoss = currentValue.subtract(totalInvested);
 
-        // Calculate return percentage
         BigDecimal returnPercent = BigDecimal.ZERO;
         if (totalInvested.compareTo(BigDecimal.ZERO) > 0) {
             returnPercent = profitLoss
@@ -69,10 +66,10 @@ public class PortfolioAnalyticsService {
         }
 
         log.info("Portfolio summary: cash={}, invested={}, current={}, P&L={}, return={}%",
-                portfolio.getCashBalance(), totalInvested, currentValue, profitLoss, returnPercent);
+                cashBalance, totalInvested, currentValue, profitLoss, returnPercent);
 
         return PortfolioSummaryResponse.builder()
-                .cashBalance(portfolio.getCashBalance().setScale(2, RoundingMode.HALF_UP))
+                .cashBalance(cashBalance.setScale(2, RoundingMode.HALF_UP))
                 .totalInvested(totalInvested.setScale(2, RoundingMode.HALF_UP))
                 .currentValue(currentValue.setScale(2, RoundingMode.HALF_UP))
                 .profitLoss(profitLoss.setScale(2, RoundingMode.HALF_UP))

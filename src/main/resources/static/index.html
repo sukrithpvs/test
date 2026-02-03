@@ -1133,6 +1133,19 @@
         </div>
     </div>
 
+    <!-- Mutual Fund Detail Modal -->
+    <div class="modal-overlay" id="mfDetailModal">
+        <div class="modal wide">
+            <div class="modal-header">
+                <h3 class="modal-title">Mutual Fund Details</h3><button class="modal-close"
+                    onclick="closeMfDetailModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="mfDetailContent">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_BASE = 'http://localhost:8080/api';
         let currentPage = 'explore', holdingsData = [], allocationChart, currentLivePrice = 0, walletBalance = 0, priceChart;
@@ -1179,7 +1192,7 @@
         function renderMutualFunds(funds) {
             const container = document.getElementById('topMutualFunds');
             if (!funds || !funds.length) { container.innerHTML = '<div class="empty-state">No data</div>'; return; }
-            container.innerHTML = `<div class="grid-2" style="gap: 10px;">${funds.map(f => `<div class="mf-card"><div class="mf-name">${f.schemeName}</div><div class="mf-house">${f.fundHouse}</div><div class="mf-stats"><div class="mf-stat"><div class="mf-stat-label">NAV</div><div class="mf-stat-value">₹${parseFloat(f.nav).toFixed(2)}</div></div><div class="mf-stat"><div class="mf-stat-label">1Y</div><div class="mf-stat-value positive">${parseFloat(f.oneYearReturn).toFixed(1)}%</div></div></div></div>`).join('')}</div>`;
+            container.innerHTML = `<div class="grid-2" style="gap: 10px;">${funds.map(f => `<div class="mf-card" onclick="openMfDetail('${f.schemeCode}')"><div class="mf-name">${f.schemeName}</div><div class="mf-house">${f.fundHouse}</div><div class="mf-stats"><div class="mf-stat"><div class="mf-stat-label">NAV</div><div class="mf-stat-value">₹${parseFloat(f.nav).toFixed(2)}</div></div><div class="mf-stat"><div class="mf-stat-label">1Y</div><div class="mf-stat-value positive">${parseFloat(f.oneYearReturn).toFixed(1)}%</div></div></div></div>`).join('')}</div>`;
         }
 
         async function loadHoldingsPage() { await loadHoldings(); await loadPortfolioSummary(); renderAllocationChart(); }

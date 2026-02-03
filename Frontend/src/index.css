@@ -33,29 +33,11 @@
     --accent-glow: none;
   }
 
-  .light-mode {
-    /* Clean Light Mode - Professional Stock Dashboard */
-    --bg-primary: #ffffff;
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --border-color: #e2e8f0;
-    --glass-bg: rgba(255, 255, 255, 0.95);
-    --glass-border: #e2e8f0;
-    --accent-green: #059669;
-    --accent-blue: #2563eb;
-    --accent-pink: #db2777;
-    --accent-glow: conic-gradient(from 180deg at 50% 50%, #3b82f6 0deg, #8b5cf6 180deg, #ec4899 360deg);
-  }
 
-  .light-mode body {
-    background-color: #ffffff !important;
-  }
 
-  .light-mode .glass-card {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
-  }
+
+
+
 
   * {
     @apply border-border;
@@ -179,11 +161,7 @@
     background-color: #000000 !important;
   }
 
-  .light-mode .glass-card {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
-  }
+
 
   .text-gradient {
     background: linear-gradient(to right, #c084fc, #60a5fa);

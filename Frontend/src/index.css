@@ -1,0 +1,522 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Surreal Theme (Purple-Blue Deep Space) */
+    --bg-primary: #030014;
+    --text-primary: #f3f4f6;
+    --text-secondary: #9ca3af;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.05);
+
+    /* Gradients */
+    --accent-glow: conic-gradient(from 180deg at 50% 50%, #2a8af6 0deg, #a853ba 180deg, #e92a67 360deg);
+  }
+
+  .black-mode {
+    /* Pure Black Theme - White and Black Navigation, Green/Blue/Pink for data only */
+    --bg-primary: #000000;
+    --text-primary: #ffffff;
+    --text-secondary: #ffffff;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --glass-bg: rgba(0, 0, 0, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent-green: #10b981;
+    --accent-blue: #3b82f6;
+    --accent-pink: #ec4899;
+    --accent-glow: none;
+  }
+
+  .light-mode {
+    /* Clean Light Mode - Professional Stock Dashboard */
+    --bg-primary: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-color: #e2e8f0;
+    --glass-bg: rgba(255, 255, 255, 0.95);
+    --glass-border: #e2e8f0;
+    --accent-green: #059669;
+    --accent-blue: #2563eb;
+    --accent-pink: #db2777;
+    --accent-glow: conic-gradient(from 180deg at 50% 50%, #3b82f6 0deg, #8b5cf6 180deg, #ec4899 360deg);
+  }
+
+  .light-mode body {
+    background-color: #ffffff !important;
+  }
+
+  .light-mode .glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, sans-serif;
+    @apply antialiased transition-colors duration-500 ease-in-out;
+  }
+
+  /* AGGRESSIVE BLACK MODE OVERRIDES - Force pure black everywhere */
+  html.black-mode,
+  .black-mode,
+  .black-mode body,
+  .black-mode html,
+  body.black-mode {
+    background-color: #000000 !important;
+    background: #000000 !important;
+  }
+
+  .black-mode #root {
+    background-color: #000000 !important;
+  }
+
+  .black-mode .min-h-screen,
+  .black-mode [class*="min-h-screen"] {
+    background-color: #000000 !important;
+  }
+
+  .black-mode .fixed.inset-0,
+  .black-mode [class*="fixed"][class*="inset-0"] {
+    background-color: #000000 !important;
+  }
+
+  /* Override ALL void backgrounds */
+  .black-mode .bg-void-900,
+  .black-mode .bg-void-950,
+  .black-mode .bg-black,
+  .black-mode [class*="bg-void"] {
+    background-color: #000000 !important;
+  }
+
+  /* Remove any gray backgrounds */
+  .black-mode [class*="bg-gray"],
+  .black-mode .bg-gray-50,
+  .black-mode .bg-gray-100,
+  .black-mode .bg-gray-200,
+  .black-mode .bg-gray-300,
+  .black-mode .bg-gray-400,
+  .black-mode .bg-gray-500,
+  .black-mode .bg-gray-600,
+  .black-mode .bg-gray-700,
+  .black-mode .bg-gray-800,
+  .black-mode .bg-gray-900 {
+    background-color: #000000 !important;
+  }
+
+  /* Override any gradient backgrounds in black mode */
+  .black-mode [class*="bg-gradient"],
+  .black-mode [class*="bg-surreal"] {
+    background: #000000 !important;
+  }
+
+  /* Force main container backgrounds */
+  .black-mode main,
+  .black-mode [role="main"] {
+    background-color: transparent !important;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  /* Tabular numbers for financial data */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Surreal Glassmorphism */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .glass-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  }
+
+  .black-mode .glass-card {
+    background: rgba(10, 10, 10, 0.95) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .black-mode .glass-card:hover {
+    background: rgba(15, 15, 15, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .black-mode .glass {
+    background: rgba(10, 10, 10, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  }
+
+  /* Force black on all background utility classes */
+  .black-mode [class*="bg-void"],
+  .black-mode [class*="bg-surreal-gradient"],
+  .black-mode [class*="bg-gradient"]:not([class*="text"]) {
+    background: #000000 !important;
+    background-color: #000000 !important;
+  }
+
+  .light-mode .glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+  }
+
+  .text-gradient {
+    background: linear-gradient(to right, #c084fc, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Black Mode Overrides - Force ALL text to be white/visible */
+  .black-mode {
+    color: #ffffff !important;
+  }
+
+  .black-mode p,
+  .black-mode span,
+  .black-mode div:not([class*="bg-"]):not([class*="border"]) {
+    color: #ffffff !important;
+  }
+
+  .black-mode h1,
+  .black-mode h2,
+  .black-mode h3,
+  .black-mode h4,
+  .black-mode h5,
+  .black-mode h6 {
+    color: #ffffff !important;
+  }
+
+  /* Override specific text color classes */
+  .black-mode .text-gray-400,
+  .black-mode .text-gray-500,
+  .black-mode .text-gray-600,
+  .black-mode .text-gray-700,
+  .black-mode .text-gray-800,
+  .black-mode .text-gray-900 {
+    color: #ffffff !important;
+  }
+
+  .black-mode .text-gray-300,
+  .black-mode .text-gray-200,
+  .black-mode .text-gray-100 {
+    color: #ffffff !important;
+  }
+
+  .black-mode .text-black {
+    color: #ffffff !important;
+  }
+
+  /* Keep accent colors for data (green/red for stocks) */
+  .black-mode .text-emerald-400,
+  .black-mode .text-emerald-500,
+  .black-mode .text-emerald-accent,
+  .black-mode .text-green-500,
+  .black-mode .text-green-400 {
+    color: #10b981 !important;
+  }
+
+  .black-mode .text-red-400,
+  .black-mode .text-red-500,
+  .black-mode .text-coral-400,
+  .black-mode .text-coral-accent {
+    color: #f87171 !important;
+  }
+
+  /* Keep blue/pink for accents */
+  .black-mode .text-blue-400,
+  .black-mode .text-blue-500 {
+    color: #3b82f6 !important;
+  }
+
+  .black-mode .text-pink-400,
+  .black-mode .text-pink-500 {
+    color: #ec4899 !important;
+  }
+
+  /* Fix gradient text in black mode */
+  .black-mode [class*="bg-clip-text"],
+  .black-mode [class*="bg-gradient"][class*="text"] {
+    -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
+  }
+
+  /* Ensure headings are visible */
+  .black-mode h1,
+  .black-mode h2,
+  .black-mode h3,
+  .black-mode h4,
+  .black-mode h5,
+  .black-mode h6,
+  .black-mode [class*="text-4xl"],
+  .black-mode [class*="text-5xl"],
+  .black-mode [class*="text-3xl"],
+  .black-mode [class*="text-2xl"],
+  .black-mode [class*="text-xl"],
+  .black-mode [class*="text-lg"],
+  .black-mode [class*="text-base"],
+  .black-mode [class*="text-sm"],
+  .black-mode [class*="text-xs"] {
+    color: #ffffff !important;
+  }
+
+  /* Override any remaining dark text */
+  .black-mode [class*="text-gray"]:not([class*="bg-"]):not([class*="border"]) {
+    color: #ffffff !important;
+  }
+
+  /* Navigation bar - increased contrast for black mode */
+  .black-mode nav.glass-card {
+    background: rgba(15, 15, 15, 0.98) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+  }
+
+  .black-mode nav.glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .black-mode nav * {
+    color: #ffffff !important;
+  }
+
+  .black-mode nav .text-white,
+  .black-mode nav .text-gray-400,
+  .black-mode nav .text-gray-300 {
+    color: #ffffff !important;
+  }
+
+  /* Navigation items - better contrast */
+  .black-mode nav .bg-white\/5,
+  .black-mode nav .bg-white\/\[0\.05\] {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .black-mode nav .bg-white\/10 {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .black-mode nav .hover\:bg-white\/5:hover,
+  .black-mode nav .hover\:bg-white\/10:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  /* Active navigation item - white background */
+  .black-mode nav .bg-gradient-to-r.from-surreal-violet.to-surreal-cyan {
+    background: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .black-mode nav .mix-blend-overlay {
+    mix-blend-mode: normal !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+  }
+
+  .black-mode nav .bg-white\/5,
+  .black-mode nav .bg-white\/\[0\.05\] {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .black-mode nav .bg-white\/10 {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .black-mode nav .border-white\/5,
+  .black-mode nav .border-white\/10 {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .black-mode nav .hover\:bg-white\/5:hover,
+  .black-mode nav .hover\:bg-white\/10:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Other elements can use white backgrounds */
+  .black-mode .bg-white\/5,
+  .black-mode .bg-white\/\[0\.05\] {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .black-mode .bg-white\/10 {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .black-mode .border-white\/5,
+  .black-mode .border-white\/10 {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .black-mode .border-white\/\[0\.05\] {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .black-mode .hover\:bg-white\/5:hover,
+  .black-mode .hover\:bg-white\/10:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .black-mode .hover\:border-white\/10:hover {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .black-mode .hover\:text-gray-300:hover {
+    color: #ffffff !important;
+  }
+
+  /* Black mode navigation active state - use white/black */
+  .black-mode nav .bg-gradient-to-r.from-surreal-violet.to-surreal-cyan {
+    background: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  /* Black mode void backgrounds */
+  .black-mode .bg-void-900,
+  .black-mode .bg-void-950 {
+    background-color: #000000 !important;
+  }
+
+  /* Black mode ensure white text stays white */
+  .black-mode .text-white {
+    color: #ffffff !important;
+  }
+
+  /* Black mode navigation logo - keep original or use white */
+  .black-mode nav .bg-gradient-to-br.from-surreal-violet.to-surreal-cyan {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .black-mode nav .bg-gradient-to-br.from-surreal-purple.to-surreal-pink {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Black mode ensure borders use accent colors */
+  .black-mode .border-thin {
+    border-width: 1px;
+  }
+
+  /* Black mode override surreal colors - white for nav, colored for data */
+  .black-mode nav .text-surreal-cyan,
+  .black-mode nav .text-surreal-violet,
+  .black-mode nav .text-surreal-pink {
+    color: #ffffff !important;
+  }
+
+  .black-mode .text-surreal-cyan:not(nav *):not([class*="text-emerald"]):not([class*="text-green"]) {
+    color: #10b981 !important;
+  }
+
+  .black-mode .text-surreal-violet:not(nav *):not([class*="text-blue"]) {
+    color: #3b82f6 !important;
+  }
+
+  .black-mode .text-surreal-pink:not(nav *):not([class*="text-pink"]) {
+    color: #ec4899 !important;
+  }
+
+  /* Keep colored backgrounds only for data visualization, not UI elements */
+  .black-mode .bg-surreal-cyan\/20:not(nav *):not(.glass-card):not([class*="text"]) {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+  }
+
+  .black-mode .bg-surreal-violet\/20:not(nav *):not(.glass-card):not([class*="text"]) {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+  }
+
+  .black-mode .bg-surreal-pink\/20:not(nav *):not(.glass-card):not([class*="text"]) {
+    background-color: rgba(236, 72, 153, 0.2) !important;
+  }
+
+  /* Ensure icons are visible */
+  .black-mode svg:not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-coral"]):not([class*="text-green"]) {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+  }
+
+  /* Ensure buttons and inputs have proper contrast */
+  .black-mode button:not([class*="bg-white"]):not([class*="bg-emerald"]):not([class*="bg-red"]) {
+    color: #ffffff !important;
+  }
+
+  .black-mode input,
+  .black-mode textarea {
+    color: #ffffff !important;
+    background-color: rgba(10, 10, 10, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-600 rounded-full opacity-50;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Sliding light animation for black theme - Bright white glowing lights */
+  @keyframes slide-light {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    5% {
+      opacity: 0.4;
+    }
+    15% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 0.7;
+    }
+    85% {
+      opacity: 0.6;
+    }
+    95% {
+      opacity: 0.4;
+    }
+    100% {
+      transform: translateX(calc(100vw + 100%));
+      opacity: 0;
+    }
+  }
+}

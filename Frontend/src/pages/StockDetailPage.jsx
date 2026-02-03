@@ -89,7 +89,7 @@ const StockDetailPage = () => {
       setPlacing(true);
       await ordersApi.place({
         ticker: stock.ticker,
-        type: orderType,
+        orderType: orderType,
         quantity: qty,
         price: stock.price
       });

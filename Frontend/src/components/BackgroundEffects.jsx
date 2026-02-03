@@ -48,7 +48,7 @@ const BackgroundEffects = () => {
           initial={{ x: -200, opacity: 0 }}
           animate={{
             x: (typeof window !== 'undefined' ? window.innerWidth : 1920) + 200,
-            opacity: [0, 0.75, 0.75, 0],
+            opacity: [0, 0.8, 0.8, 0],
           }}
           transition={{
             duration: 8,

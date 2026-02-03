@@ -3,6 +3,7 @@ import Navigation from './Navigation';
 import TickerTape from './TickerTape';
 import BackgroundEffects from './BackgroundEffects';
 import { useTheme } from '../context/ThemeContext';
+import ChatWidget from '../chatbot/ChatWidget';
 
 const AppLayout = ({ children }) => {
   const { theme } = useTheme();
@@ -15,6 +16,7 @@ const AppLayout = ({ children }) => {
       document.documentElement.style.backgroundColor = '#000000';
     }
   }, [theme]);
+
 
   return (
     <div
@@ -31,6 +33,7 @@ const AppLayout = ({ children }) => {
         </div>
       )}
 
+
       {/* Black mode - pure black background with animated effects */}
       {theme === 'black' && (
         <>
@@ -44,6 +47,8 @@ const AppLayout = ({ children }) => {
         <TickerTape />
         <main className="pb-20 max-w-[1600px] mx-auto px-4 md:px-8 pt-6">{children}</main>
       </div>
+
+      <ChatWidget />
     </div>
   );
 };

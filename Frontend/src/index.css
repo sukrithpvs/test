@@ -500,4 +500,8 @@
       opacity: 0;
     }
   }
+
+  .text-force-black {
+    color: #000000 !important;
+  }
 }

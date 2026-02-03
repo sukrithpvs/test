@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, TrendingUp, TrendingDown, Share2, Star, ChevronRight, Zap, DollarSign, Plus, Loader2 } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, Share2, Star, ChevronRight, Zap, DollarSign, Plus, Minus, Loader2 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, Tooltip } from 'recharts';
 import { marketApi, ordersApi, watchlistApi, portfolioApi } from '../api';
 import MetricChip from '../components/MetricChip';
@@ -230,7 +230,7 @@ const StockDetailPage = () => {
                 <button
                   key={p}
                   onClick={() => setSelectedPeriod(p)}
-                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${selectedPeriod === p ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${selectedPeriod === p ? 'bg-surreal-cyan text-force-black shadow-lg shadow-surreal-cyan/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                 >
                   {p}
                 </button>
@@ -428,12 +428,35 @@ const StockDetailPage = () => {
                     <input
                       type="number"
                       value={qty}
-                      onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '') {
+                          setQty('');
+                        } else {
+                          setQty(Math.max(1, parseInt(val)));
+                        }
+                      }}
+                      onBlur={() => {
+                        if (qty === '' || qty < 1) setQty(1);
+                      }}
                       min="1"
                       className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-4 text-xl font-bold text-white focus:outline-none focus:border-surreal-cyan transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1 z-10">
-                      <button type="button" onClick={() => setQty(q => Number(q) + 1)} className="p-2 hover:bg-white/10 rounded transition-colors"><Plus className="w-5 h-5 text-gray-400" /></button>
+                      <button
+                        type="button"
+                        onClick={() => setQty(q => Math.max(1, (Number(q) || 0) - 1))}
+                        className="p-2 hover:bg-white/10 rounded transition-colors"
+                      >
+                        <Minus className="w-5 h-5 text-gray-400" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQty(q => (Number(q) || 0) + 1)}
+                        className="p-2 hover:bg-white/10 rounded transition-colors"
+                      >
+                        <Plus className="w-5 h-5 text-gray-400" />
+                      </button>
                     </div>
                   </div>
                 </div>

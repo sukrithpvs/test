@@ -6,6 +6,7 @@ import HoldingsPage from './pages/HoldingsPage';
 import OrdersPage from './pages/OrdersPage';
 import WatchlistPage from './pages/WatchlistPage';
 import StockDetailPage from './pages/StockDetailPage';
+import MutualFundsPage from './pages/MutualFundsPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/holdings" element={<HoldingsPage />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/watchlist" element={<WatchlistPage />} />
+          <Route path="/mutualfunds" element={<MutualFundsPage />} />
           <Route path="/stock/:ticker" element={<StockDetailPage />} />
         </Routes>
       </AppLayout>

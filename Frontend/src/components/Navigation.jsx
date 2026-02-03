@@ -11,14 +11,12 @@ const Navigation = () => {
 
   const getThemeIcon = () => {
     if (theme === 'surreal') return <Zap className="w-4 h-4" />;
-    if (theme === 'black') return <Moon className="w-4 h-4" />;
-    return <Sun className="w-4 h-4" />;
+    return <Moon className="w-4 h-4" />;
   };
 
   const getThemeLabel = () => {
     if (theme === 'surreal') return 'Surreal';
-    if (theme === 'black') return 'Black';
-    return 'Light';
+    return 'Black';
   };
 
   const navItems = [

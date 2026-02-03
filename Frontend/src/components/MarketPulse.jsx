@@ -6,7 +6,6 @@ import DenseListItem from './DenseListItem';
 
 const MarketPulse = () => {
   const [activeTab, setActiveTab] = useState('gainers');
-  const [indices, setIndices] = useState([]);
   const [movers, setMovers] = useState({ gainers: [], losers: [] });
   const [loading, setLoading] = useState(true);
 
@@ -17,13 +16,11 @@ const MarketPulse = () => {
   const loadMarketData = async () => {
     try {
       setLoading(true);
-      const [indicesData, gainersData, losersData] = await Promise.all([
-        marketApi.getIndices(),
+      const [gainersData, losersData] = await Promise.all([
         marketApi.getGainers(),
         marketApi.getLosers()
       ]);
 
-      setIndices(indicesData);
       setMovers({
         gainers: transformMovers(gainersData),
         losers: transformMovers(losersData)
@@ -72,40 +69,7 @@ const MarketPulse = () => {
 
   return (
     <div className="grid grid-cols-1 gap-6 mb-8">
-      {/* Column 1: Indices & Volatility */}
-      <div className="glass rounded-xl p-4 border-thin border-border">
-        <h3 className="text-sm font-semibold text-gray-300 mb-4">Indices & Volatility</h3>
-        <div className="space-y-3">
-          {indices.map((index) => {
-            const isPositive = index.changePercent >= 0;
 
-            return (
-              <div key={index.name} className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">{index.name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="tabular-nums text-xs font-semibold text-gray-100">
-                      {parseFloat(index.value).toLocaleString('en-US', { maximumFractionDigits: 2 })}
-                    </span>
-                    <span className={`tabular-nums text-xs ${isPositive ? 'text-emerald-accent' : 'text-coral-accent'}`}>
-                      {isPositive ? '+' : ''}{parseFloat(index.changePercent).toFixed(2)}%
-                    </span>
-                  </div>
-                </div>
-                {/* Day Range Bar */}
-                <div className="h-0.5 bg-white/[0.05] rounded-full overflow-hidden">
-                  <motion.div
-                    className={`h-full ${isPositive ? 'bg-emerald-accent' : 'bg-coral-accent'}`}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(Math.abs(index.changePercent) * 20, 100)}%` }}
-                    transition={{ duration: 0.5 }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
       {/* Column 2: Top Movers */}
       <div className="glass rounded-xl p-4 border-thin border-border">

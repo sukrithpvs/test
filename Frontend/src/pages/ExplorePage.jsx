@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import InvestmentsRibbon from '../components/InvestmentsRibbon';
 import MarketPulse from '../components/MarketPulse';
 import TrendingStocks from '../components/TrendingStocks';
@@ -8,6 +9,7 @@ import NewsSection from '../components/NewsSection';
 import { marketApi } from '../api';
 
 const ExplorePage = () => {
+  const navigate = useNavigate();
   const [mutualFunds, setMutualFunds] = useState([]);
   const [loadingMF, setLoadingMF] = useState(true);
 
@@ -107,7 +109,7 @@ const ExplorePage = () => {
             )}
             <button
               className="w-full mt-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-surreal-cyan transition-colors font-medium"
-              onClick={() => window.location.href = '/mutualfunds'}
+              onClick={() => navigate('/mutualfunds')}
             >
               View All Funds
             </button>

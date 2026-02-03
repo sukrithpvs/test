@@ -8,8 +8,10 @@ export const ThemeProvider = ({ children }) => {
     useEffect(() => {
         // Check local storage on mount
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme && ['surreal', 'black', 'light'].includes(savedTheme)) {
+        if (savedTheme && ['surreal', 'black'].includes(savedTheme)) {
             setTheme(savedTheme);
+        } else {
+            setTheme('surreal');
         }
     }, []);
 
@@ -51,10 +53,9 @@ export const ThemeProvider = ({ children }) => {
     }, [theme]);
 
     const toggleTheme = () => {
-        // Cycle through: surreal -> black -> light -> surreal
+        // Cycle through: surreal -> black -> surreal
         setTheme(prev => {
             if (prev === 'surreal') return 'black';
-            if (prev === 'black') return 'light';
             return 'surreal';
         });
     };

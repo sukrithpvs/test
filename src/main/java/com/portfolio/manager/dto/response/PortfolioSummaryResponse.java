@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @Builder
 public class PortfolioSummaryResponse {
 
+    private BigDecimal cashBalance; // Available cash in wallet
     private BigDecimal totalInvested;
     private BigDecimal currentValue;
     private BigDecimal profitLoss;

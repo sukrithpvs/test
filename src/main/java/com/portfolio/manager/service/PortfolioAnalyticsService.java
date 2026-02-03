@@ -2,6 +2,7 @@ package com.portfolio.manager.service;
 
 import com.portfolio.manager.dto.response.PortfolioSummaryResponse;
 import com.portfolio.manager.entity.Holding;
+import com.portfolio.manager.entity.Portfolio;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,17 +18,20 @@ import java.util.List;
 public class PortfolioAnalyticsService {
 
     private final HoldingService holdingService;
+    private final PortfolioService portfolioService;
     private final YahooFinanceService yahooFinanceService;
 
     @Transactional(readOnly = true)
     public PortfolioSummaryResponse getPortfolioSummary() {
         log.info("Calculating portfolio summary");
 
+        Portfolio portfolio = portfolioService.getPortfolioEntity();
         List<Holding> holdings = holdingService.getAllHoldingEntities();
 
         if (holdings.isEmpty()) {
-            log.info("No holdings found, returning zero summary");
+            log.info("No holdings found, returning wallet balance only");
             return PortfolioSummaryResponse.builder()
+                    .cashBalance(portfolio.getCashBalance().setScale(2, RoundingMode.HALF_UP))
                     .totalInvested(BigDecimal.ZERO)
                     .currentValue(BigDecimal.ZERO)
                     .profitLoss(BigDecimal.ZERO)
@@ -64,10 +68,11 @@ public class PortfolioAnalyticsService {
                     .setScale(2, RoundingMode.HALF_UP);
         }
 
-        log.info("Portfolio summary: invested={}, current={}, P&L={}, return={}%",
-                totalInvested, currentValue, profitLoss, returnPercent);
+        log.info("Portfolio summary: cash={}, invested={}, current={}, P&L={}, return={}%",
+                portfolio.getCashBalance(), totalInvested, currentValue, profitLoss, returnPercent);
 
         return PortfolioSummaryResponse.builder()
+                .cashBalance(portfolio.getCashBalance().setScale(2, RoundingMode.HALF_UP))
                 .totalInvested(totalInvested.setScale(2, RoundingMode.HALF_UP))
                 .currentValue(currentValue.setScale(2, RoundingMode.HALF_UP))
                 .profitLoss(profitLoss.setScale(2, RoundingMode.HALF_UP))

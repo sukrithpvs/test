@@ -2,6 +2,7 @@ package com.portfolio.manager.service;
 
 import com.portfolio.manager.dto.request.CreateOrderRequest;
 import com.portfolio.manager.dto.response.OrderResponse;
+import com.portfolio.manager.dto.response.PriceResponse;
 import com.portfolio.manager.entity.Holding;
 import com.portfolio.manager.entity.Order;
 import com.portfolio.manager.entity.Portfolio;
@@ -9,12 +10,14 @@ import com.portfolio.manager.exception.BadRequestException;
 import com.portfolio.manager.exception.ResourceNotFoundException;
 import com.portfolio.manager.repository.HoldingRepository;
 import com.portfolio.manager.repository.OrderRepository;
+import com.portfolio.manager.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +30,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final HoldingRepository holdingRepository;
+    private final PortfolioRepository portfolioRepository;
     private final PortfolioService portfolioService;
     private final YahooFinanceService yahooFinanceService;
 
@@ -35,18 +39,31 @@ public class OrderService {
         String ticker = request.getTicker().toUpperCase();
         Order.OrderType orderType = Order.OrderType.valueOf(request.getOrderType().toUpperCase());
 
-        log.info("Creating {} order for {} - {} shares @ ${}",
-                orderType, ticker, request.getQuantity(), request.getPrice());
+        // Fetch current price from Yahoo Finance (ignore user-provided price)
+        BigDecimal currentPrice = fetchCurrentPrice(ticker);
+        BigDecimal quantity = request.getQuantity();
+        BigDecimal totalAmount = quantity.multiply(currentPrice).setScale(2, RoundingMode.HALF_UP);
+
+        log.info("Creating {} order for {} - {} shares @ ${} (live price)",
+                orderType, ticker, quantity, currentPrice);
 
         Portfolio portfolio = portfolioService.getPortfolioEntity();
 
-        // For SELL orders, verify user has enough shares
-        if (orderType == Order.OrderType.SELL) {
+        // Validate order
+        if (orderType == Order.OrderType.BUY) {
+            // Check if user has enough cash
+            if (portfolio.getCashBalance().compareTo(totalAmount) < 0) {
+                throw new BadRequestException(
+                        String.format("Insufficient funds. You have $%.2f but need $%.2f to buy %s shares of %s",
+                                portfolio.getCashBalance(), totalAmount, quantity, ticker));
+            }
+        } else { // SELL
+            // Check if user has enough shares
             Optional<Holding> holding = holdingRepository.findByPortfolioAndTicker(portfolio, ticker);
             if (holding.isEmpty()) {
                 throw new BadRequestException("You don't own any shares of " + ticker);
             }
-            if (holding.get().getQuantity().compareTo(request.getQuantity()) < 0) {
+            if (holding.get().getQuantity().compareTo(quantity) < 0) {
                 throw new BadRequestException("Insufficient shares. You only have " +
                         holding.get().getQuantity() + " shares of " + ticker);
             }
@@ -57,22 +74,44 @@ public class OrderService {
                 .portfolio(portfolio)
                 .ticker(ticker)
                 .orderType(orderType)
-                .status(Order.OrderStatus.COMPLETED) // Instant execution for demo
-                .quantity(request.getQuantity())
-                .price(request.getPrice())
-                .totalAmount(request.getQuantity().multiply(request.getPrice()))
+                .status(Order.OrderStatus.COMPLETED)
+                .quantity(quantity)
+                .price(currentPrice)
+                .totalAmount(totalAmount)
                 .executedAt(LocalDateTime.now())
                 .build();
 
         Order saved = orderRepository.save(order);
 
-        // Update holdings based on order type
-        updateHoldings(portfolio, ticker, request.getQuantity(), request.getPrice(), orderType);
+        // Update wallet balance
+        if (orderType == Order.OrderType.BUY) {
+            portfolio.setCashBalance(portfolio.getCashBalance().subtract(totalAmount));
+            log.info("Deducted ${} from wallet. New balance: ${}", totalAmount, portfolio.getCashBalance());
+        } else {
+            portfolio.setCashBalance(portfolio.getCashBalance().add(totalAmount));
+            log.info("Added ${} to wallet. New balance: ${}", totalAmount, portfolio.getCashBalance());
+        }
+        portfolioRepository.save(portfolio);
+
+        // Update holdings
+        updateHoldings(portfolio, ticker, quantity, currentPrice, orderType);
 
         log.info("Order {} completed: {} {} shares of {} @ ${}",
-                saved.getId(), orderType, request.getQuantity(), ticker, request.getPrice());
+                saved.getId(), orderType, quantity, ticker, currentPrice);
 
         return toResponse(saved);
+    }
+
+    private BigDecimal fetchCurrentPrice(String ticker) {
+        try {
+            PriceResponse priceResponse = yahooFinanceService.getStockPrice(ticker);
+            if (priceResponse.getPrice() != null && priceResponse.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+                return priceResponse.getPrice();
+            }
+        } catch (Exception e) {
+            log.warn("Could not fetch price for {}: {}", ticker, e.getMessage());
+        }
+        throw new BadRequestException("Could not fetch current price for " + ticker + ". Please try again.");
     }
 
     private void updateHoldings(Portfolio portfolio, String ticker, BigDecimal quantity,
@@ -86,7 +125,7 @@ public class OrderService {
                 BigDecimal totalShares = holding.getQuantity().add(quantity);
                 BigDecimal totalValue = holding.getQuantity().multiply(holding.getAvgBuyPrice())
                         .add(quantity.multiply(price));
-                BigDecimal newAvgPrice = totalValue.divide(totalShares, 4, java.math.RoundingMode.HALF_UP);
+                BigDecimal newAvgPrice = totalValue.divide(totalShares, 4, RoundingMode.HALF_UP);
 
                 holding.setQuantity(totalShares);
                 holding.setAvgBuyPrice(newAvgPrice);
@@ -106,7 +145,6 @@ public class OrderService {
             BigDecimal remainingShares = holding.getQuantity().subtract(quantity);
 
             if (remainingShares.compareTo(BigDecimal.ZERO) <= 0) {
-                // Remove holding entirely
                 holdingRepository.delete(holding);
             } else {
                 holding.setQuantity(remainingShares);

@@ -30,6 +30,7 @@
             --success: #00d09c;
             --danger: #f85149;
             --warning: #d29922;
+            --gold: #ffd700;
         }
 
         body {
@@ -39,7 +40,6 @@
             min-height: 100vh;
         }
 
-        /* Sidebar */
         .sidebar {
             position: fixed;
             left: 0;
@@ -119,32 +119,45 @@
             width: 20px;
         }
 
-        .wallet-mini {
-            background: linear-gradient(135deg, var(--primary-dark), #004d40);
+        .wallet-card {
+            background: linear-gradient(135deg, #1a472a, #0d2818);
+            border: 1px solid var(--primary-dark);
             border-radius: 12px;
             padding: 16px;
             margin-top: auto;
         }
 
-        .wallet-mini-label {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.7);
+        .wallet-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        .wallet-mini-value {
-            font-size: 1.25rem;
+        .wallet-label i {
+            color: var(--gold);
+        }
+
+        .wallet-value {
+            font-size: 1.4rem;
             font-weight: 700;
-            margin-top: 4px;
+            color: var(--gold);
+            margin-top: 6px;
         }
 
-        /* Main */
+        .wallet-subtext {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
         .main-content {
             margin-left: 240px;
             padding: 24px;
             min-height: 100vh;
         }
 
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -181,7 +194,6 @@
             color: var(--text-muted);
         }
 
-        /* Page Content */
         .page {
             display: none;
         }
@@ -190,7 +202,6 @@
             display: block;
         }
 
-        /* Cards */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -211,7 +222,6 @@
             font-weight: 600;
         }
 
-        /* Grid */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -230,7 +240,12 @@
             gap: 16px;
         }
 
-        /* Stat Cards */
+        .grid-5 {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
         .stat-card {
             background: linear-gradient(135deg, #1a1f35, var(--bg-card));
             border: 1px solid var(--border);
@@ -242,6 +257,11 @@
             background: linear-gradient(135deg, var(--primary-dark), #004d40);
         }
 
+        .stat-card.wallet {
+            background: linear-gradient(135deg, #1a472a, #0d2818);
+            border-color: var(--primary-dark);
+        }
+
         .stat-label {
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -251,6 +271,10 @@
         .stat-value {
             font-size: 1.5rem;
             font-weight: 700;
+        }
+
+        .stat-value.gold {
+            color: var(--gold);
         }
 
         .stat-change {
@@ -274,7 +298,6 @@
             color: var(--danger);
         }
 
-        /* Stock List */
         .stock-list {
             display: flex;
             flex-direction: column;
@@ -344,7 +367,6 @@
             color: var(--danger);
         }
 
-        /* Table */
         .table-container {
             overflow-x: auto;
         }
@@ -372,7 +394,6 @@
             background: var(--bg-card-hover);
         }
 
-        /* Buttons */
         .btn {
             padding: 10px 20px;
             border-radius: 8px;
@@ -431,7 +452,11 @@
             border-color: var(--text-muted);
         }
 
-        /* Mutual Funds */
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .mf-card {
             background: var(--bg-dark);
             border-radius: 10px;
@@ -478,7 +503,6 @@
             font-weight: 600;
         }
 
-        /* Charts */
         .chart-container {
             height: 200px;
             position: relative;
@@ -488,7 +512,6 @@
             height: 300px;
         }
 
-        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -515,6 +538,10 @@
             max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
+        }
+
+        .modal.wide {
+            max-width: 800px;
         }
 
         .modal-header {
@@ -565,6 +592,11 @@
             border-color: var(--primary);
         }
 
+        .form-input:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
         .form-row {
             display: flex;
             gap: 12px;
@@ -574,7 +606,47 @@
             flex: 1;
         }
 
-        /* Stock Detail Modal */
+        .price-display {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .price-display-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .price-display-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 4px;
+        }
+
+        .order-summary {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .order-summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .order-summary-row:last-child {
+            margin-bottom: 0;
+            border-top: 1px solid var(--border);
+            padding-top: 8px;
+            font-weight: 600;
+        }
+
         .stock-detail-header {
             display: flex;
             align-items: center;
@@ -613,7 +685,7 @@
 
         .stock-detail-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
             margin-bottom: 20px;
         }
@@ -625,16 +697,32 @@
         }
 
         .stock-detail-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
         }
 
         .stock-detail-value {
             font-weight: 600;
             margin-top: 4px;
+            font-size: 0.9rem;
         }
 
-        /* Toast */
+        .chart-section {
+            margin: 20px 0;
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        .price-chart {
+            height: 200px;
+            position: relative;
+        }
+
         .toast {
             position: fixed;
             bottom: 24px;
@@ -671,7 +759,6 @@
             }
         }
 
-        /* Spinner */
         .spinner {
             width: 32px;
             height: 32px;
@@ -682,13 +769,20 @@
             margin: 20px auto;
         }
 
+        .spinner-sm {
+            width: 16px;
+            height: 16px;
+            border-width: 2px;
+            margin: 0;
+            display: inline-block;
+        }
+
         @keyframes spin {
             to {
                 transform: rotate(360deg);
             }
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -700,7 +794,6 @@
             margin-bottom: 16px;
         }
 
-        /* Tags */
         .tag {
             display: inline-block;
             padding: 4px 10px;
@@ -724,14 +817,26 @@
             color: var(--success);
         }
 
-        .tag-pending {
-            background: rgba(210, 153, 34, 0.15);
-            color: var(--warning);
+        .sector-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            background: rgba(83, 103, 255, 0.15);
+            color: var(--secondary);
+            margin-right: 6px;
         }
 
-        /* Responsive */
+        @media (max-width: 1200px) {
+            .grid-5 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
         @media (max-width: 1024px) {
-            .grid-4 {
+
+            .grid-4,
+            .grid-5 {
                 grid-template-columns: 1fr 1fr;
             }
 
@@ -751,64 +856,49 @@
 
             .grid-2,
             .grid-3,
-            .grid-4 {
+            .grid-4,
+            .grid-5 {
                 grid-template-columns: 1fr;
+            }
+
+            .stock-detail-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="logo">
-            <div class="logo-icon">📈</div>
-            <span class="logo-text">Folio</span>
+            <div class="logo-icon">📈</div><span class="logo-text">Folio</span>
         </div>
         <ul class="nav-menu">
-            <li class="nav-item">
-                <a class="nav-link active" data-page="explore">
-                    <i class="fas fa-compass"></i> Explore
-                </a>
+            <li class="nav-item"><a class="nav-link active" data-page="explore"><i class="fas fa-compass"></i>
+                    Explore</a></li>
+            <li class="nav-item"><a class="nav-link" data-page="holdings"><i class="fas fa-wallet"></i> Holdings</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" data-page="holdings">
-                    <i class="fas fa-wallet"></i> Holdings
-                </a>
+            <li class="nav-item"><a class="nav-link" data-page="orders"><i class="fas fa-exchange-alt"></i> Orders</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" data-page="orders">
-                    <i class="fas fa-exchange-alt"></i> Orders
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-page="watchlist">
-                    <i class="fas fa-star"></i> Watchlist
-                </a>
+            <li class="nav-item"><a class="nav-link" data-page="watchlist"><i class="fas fa-star"></i> Watchlist</a>
             </li>
         </ul>
-        <div class="wallet-mini">
-            <div class="wallet-mini-label">Portfolio Value</div>
-            <div class="wallet-mini-value" id="sidebarValue">$0.00</div>
+        <div class="wallet-card">
+            <div class="wallet-label"><i class="fas fa-coins"></i> Available Cash</div>
+            <div class="wallet-value" id="sidebarWallet">$0.00</div>
+            <div class="wallet-subtext">Portfolio: <span id="sidebarPortfolio">$0.00</span></div>
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- EXPLORE PAGE -->
         <div id="page-explore" class="page active">
             <div class="header">
                 <h1 class="page-title">Explore</h1>
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="exploreSearch" placeholder="Search stocks..."
-                        onkeypress="if(event.key==='Enter') searchStock()">
-                </div>
+                <div class="search-box"><i class="fas fa-search"></i><input type="text" id="exploreSearch"
+                        placeholder="Search stocks..." onkeypress="if(event.key==='Enter') searchStock()"></div>
             </div>
-
             <div class="grid-2" style="margin-bottom: 20px;">
                 <div>
-                    <!-- Top Gainers -->
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-arrow-trend-up" style="color: var(--success);"></i>
@@ -818,7 +908,6 @@
                             <div class="spinner"></div>
                         </div>
                     </div>
-                    <!-- Top Losers -->
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-arrow-trend-down" style="color: var(--danger);"></i>
@@ -830,7 +919,6 @@
                     </div>
                 </div>
                 <div>
-                    <!-- Investment Summary -->
                     <div class="card" style="background: linear-gradient(135deg, var(--primary-dark), #004d40);">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-chart-pie"></i> Your Investments</h3>
@@ -838,11 +926,9 @@
                         <div class="stat-value" id="exploreCurrentValue" style="font-size: 2rem; margin-bottom: 12px;">
                             $0.00</div>
                         <div class="stat-change positive" id="exploreReturn">+0.00%</div>
-                        <div style="margin-top: 20px; display: flex; gap: 10px;">
-                            <button class="btn btn-secondary" onclick="showPage('holdings')">View Holdings</button>
-                        </div>
+                        <div style="margin-top: 20px;"><button class="btn btn-secondary"
+                                onclick="showPage('holdings')">View Holdings</button></div>
                     </div>
-                    <!-- Top Mutual Funds -->
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-landmark" style="color: var(--secondary);"></i> Top
@@ -856,17 +942,18 @@
             </div>
         </div>
 
-        <!-- HOLDINGS PAGE -->
         <div id="page-holdings" class="page">
             <div class="header">
-                <h1 class="page-title">Holdings</h1>
-                <button class="btn btn-primary" onclick="openBuyModal()"><i class="fas fa-plus"></i> Buy Stock</button>
+                <h1 class="page-title">Holdings</h1><button class="btn btn-primary" onclick="openBuyModal()"><i
+                        class="fas fa-plus"></i> Buy Stock</button>
             </div>
-
-            <!-- Portfolio Stats -->
-            <div class="grid-4" style="margin-bottom: 20px;">
+            <div class="grid-5" style="margin-bottom: 20px;">
+                <div class="stat-card wallet">
+                    <div class="stat-label"><i class="fas fa-coins" style="color: var(--gold);"></i> Cash Balance</div>
+                    <div class="stat-value gold" id="holdingsCashBalance">$0.00</div>
+                </div>
                 <div class="stat-card primary">
-                    <div class="stat-label">Current Value</div>
+                    <div class="stat-label">Holdings Value</div>
                     <div class="stat-value" id="holdingsCurrentValue">$0.00</div>
                 </div>
                 <div class="stat-card">
@@ -882,23 +969,21 @@
                     <div class="stat-value" id="holdingsReturns">0.00%</div>
                 </div>
             </div>
-
             <div class="grid-2">
-                <!-- Holdings List -->
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Your Stocks</h3>
                     </div>
                     <div class="table-container">
-                        <table id="holdingsTable">
+                        <table>
                             <thead>
                                 <tr>
                                     <th>Stock</th>
                                     <th>Qty</th>
-                                    <th>Avg Price</th>
+                                    <th>Avg</th>
                                     <th>Current</th>
                                     <th>P&L</th>
-                                    <th>Actions</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody id="holdingsBody">
@@ -911,24 +996,19 @@
                         </table>
                     </div>
                 </div>
-                <!-- Portfolio Chart -->
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Portfolio Allocation</h3>
                     </div>
-                    <div class="chart-container large">
-                        <canvas id="allocationChart"></canvas>
-                    </div>
+                    <div class="chart-container large"><canvas id="allocationChart"></canvas></div>
                 </div>
             </div>
         </div>
 
-        <!-- ORDERS PAGE -->
         <div id="page-orders" class="page">
             <div class="header">
                 <h1 class="page-title">Orders</h1>
             </div>
-
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Transaction History</h3>
@@ -937,12 +1017,12 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Date & Time</th>
+                                <th>Date</th>
                                 <th>Stock</th>
                                 <th>Type</th>
-                                <th>Quantity</th>
+                                <th>Qty</th>
                                 <th>Price</th>
-                                <th>Amount</th>
+                                <th>Total</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -958,14 +1038,11 @@
             </div>
         </div>
 
-        <!-- WATCHLIST PAGE -->
         <div id="page-watchlist" class="page">
             <div class="header">
-                <h1 class="page-title">Watchlist</h1>
-                <button class="btn btn-primary" onclick="openAddWatchlistModal()"><i class="fas fa-plus"></i> Add
-                    Stock</button>
+                <h1 class="page-title">Watchlist</h1><button class="btn btn-primary"
+                    onclick="openAddWatchlistModal()"><i class="fas fa-plus"></i> Add Stock</button>
             </div>
-
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Saved Stocks</h3>
@@ -975,10 +1052,10 @@
                         <thead>
                             <tr>
                                 <th>Stock</th>
-                                <th>Current Price</th>
+                                <th>Price</th>
                                 <th>Change</th>
-                                <th>Added On</th>
-                                <th>Actions</th>
+                                <th>Added</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody id="watchlistBody">
@@ -994,67 +1071,61 @@
         </div>
     </main>
 
-    <!-- Buy/Sell Modal -->
+    <!-- Trade Modal -->
     <div class="modal-overlay" id="tradeModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title" id="tradeModalTitle">Buy Stock</h3>
-                <button class="modal-close" onclick="closeTradeModal()"><i class="fas fa-times"></i></button>
+                <h3 class="modal-title" id="tradeModalTitle">Buy Stock</h3><button class="modal-close"
+                    onclick="closeTradeModal()"><i class="fas fa-times"></i></button>
             </div>
             <form onsubmit="executeTrade(event)">
-                <div class="form-group">
-                    <label class="form-label">Stock Symbol</label>
-                    <input type="text" class="form-input" id="tradeTicker" placeholder="e.g., AAPL" required>
+                <div class="form-group"><label class="form-label">Stock Symbol</label><input type="text"
+                        class="form-input" id="tradeTicker" placeholder="e.g., AAPL" required oninput="onTickerInput()">
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Quantity</label>
-                        <input type="number" class="form-input" id="tradeQuantity" placeholder="10" step="0.01"
-                            required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Price ($)</label>
-                        <input type="number" class="form-input" id="tradePrice" placeholder="150.00" step="0.01"
-                            required>
-                    </div>
+                <div class="price-display" id="priceDisplaySection" style="display: none;">
+                    <div class="price-display-label">Live Market Price</div>
+                    <div class="price-display-value" id="livePrice">$0.00</div>
                 </div>
-                <input type="hidden" id="tradeType" value="BUY">
-                <button type="submit" class="btn btn-primary" id="tradeSubmitBtn" style="width: 100%;">
-                    <i class="fas fa-check"></i> Place Order
-                </button>
+                <div class="form-group"><label class="form-label">Quantity</label><input type="number"
+                        class="form-input" id="tradeQuantity" placeholder="10" step="1" min="1" required
+                        oninput="updateOrderSummary()"></div>
+                <div class="order-summary" id="orderSummarySection" style="display: none;">
+                    <div class="order-summary-row"><span>Price per share</span><span id="summaryPrice">$0.00</span>
+                    </div>
+                    <div class="order-summary-row"><span>Quantity</span><span id="summaryQuantity">0</span></div>
+                    <div class="order-summary-row"><span>Total Amount</span><span id="summaryTotal">$0.00</span></div>
+                </div>
+                <input type="hidden" id="tradeType" value="BUY"><input type="hidden" id="tradePrice" value="0">
+                <button type="submit" class="btn btn-primary" id="tradeSubmitBtn" style="width: 100%;" disabled><i
+                        class="fas fa-shopping-cart"></i> <span id="tradeBtnText">Fetch Price First</span></button>
             </form>
         </div>
     </div>
 
-    <!-- Add to Watchlist Modal -->
+    <!-- Watchlist Modal -->
     <div class="modal-overlay" id="watchlistModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">Add to Watchlist</h3>
-                <button class="modal-close" onclick="closeWatchlistModal()"><i class="fas fa-times"></i></button>
+                <h3 class="modal-title">Add to Watchlist</h3><button class="modal-close"
+                    onclick="closeWatchlistModal()"><i class="fas fa-times"></i></button>
             </div>
             <form onsubmit="addToWatchlist(event)">
-                <div class="form-group">
-                    <label class="form-label">Stock Symbol</label>
-                    <input type="text" class="form-input" id="watchlistTicker" placeholder="e.g., GOOGL" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Notes (Optional)</label>
-                    <input type="text" class="form-input" id="watchlistNotes" placeholder="Why are you watching this?">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-star"></i> Add to Watchlist
-                </button>
+                <div class="form-group"><label class="form-label">Stock Symbol</label><input type="text"
+                        class="form-input" id="watchlistTicker" placeholder="e.g., GOOGL" required></div>
+                <div class="form-group"><label class="form-label">Notes (Optional)</label><input type="text"
+                        class="form-input" id="watchlistNotes" placeholder="Why are you watching this?"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-star"></i> Add to
+                    Watchlist</button>
             </form>
         </div>
     </div>
 
-    <!-- Stock Detail Modal -->
+    <!-- Stock Detail Modal (Wide with Chart) -->
     <div class="modal-overlay" id="stockDetailModal">
-        <div class="modal" style="max-width: 600px;">
+        <div class="modal wide">
             <div class="modal-header">
-                <h3 class="modal-title">Stock Details</h3>
-                <button class="modal-close" onclick="closeStockDetailModal()"><i class="fas fa-times"></i></button>
+                <h3 class="modal-title">Stock Details</h3><button class="modal-close"
+                    onclick="closeStockDetailModal()"><i class="fas fa-times"></i></button>
             </div>
             <div id="stockDetailContent">
                 <div class="spinner"></div>
@@ -1064,25 +1135,11 @@
 
     <script>
         const API_BASE = 'http://localhost:8080/api';
-        let currentPage = 'explore';
-        let holdingsData = [];
-        let allocationChart;
+        let currentPage = 'explore', holdingsData = [], allocationChart, currentLivePrice = 0, walletBalance = 0, priceChart;
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            setupNavigation();
-            loadExplorePage();
-        });
+        document.addEventListener('DOMContentLoaded', () => { setupNavigation(); loadExplorePage(); });
 
-        // Navigation
-        function setupNavigation() {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', () => {
-                    const page = link.dataset.page;
-                    showPage(page);
-                });
-            });
-        }
+        function setupNavigation() { document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', () => showPage(link.dataset.page)); }); }
 
         function showPage(page) {
             currentPage = page;
@@ -1090,399 +1147,96 @@
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById(`page-${page}`).classList.add('active');
             document.querySelector(`[data-page="${page}"]`).classList.add('active');
-
-            switch (page) {
-                case 'explore': loadExplorePage(); break;
-                case 'holdings': loadHoldingsPage(); break;
-                case 'orders': loadOrdersPage(); break;
-                case 'watchlist': loadWatchlistPage(); break;
-            }
+            switch (page) { case 'explore': loadExplorePage(); break; case 'holdings': loadHoldingsPage(); break; case 'orders': loadOrdersPage(); break; case 'watchlist': loadWatchlistPage(); break; }
         }
 
-        // EXPLORE PAGE
-        async function loadExplorePage() {
-            loadTopGainers();
-            loadTopLosers();
-            loadTopMutualFunds();
-            loadPortfolioMini();
-        }
-
-        async function loadTopGainers() {
-            try {
-                const res = await fetch(`${API_BASE}/market/gainers`);
-                const data = await res.json();
-                renderStockList('topGainers', data);
-            } catch { document.getElementById('topGainers').innerHTML = '<div class="empty-state">Failed to load</div>'; }
-        }
-
-        async function loadTopLosers() {
-            try {
-                const res = await fetch(`${API_BASE}/market/losers`);
-                const data = await res.json();
-                renderStockList('topLosers', data);
-            } catch { document.getElementById('topLosers').innerHTML = '<div class="empty-state">Failed to load</div>'; }
-        }
-
-        async function loadTopMutualFunds() {
-            try {
-                const res = await fetch(`${API_BASE}/market/mutualfunds`);
-                const data = await res.json();
-                renderMutualFunds(data.slice(0, 4));
-            } catch { document.getElementById('topMutualFunds').innerHTML = '<div class="empty-state">Failed to load</div>'; }
-        }
+        async function loadExplorePage() { loadTopGainers(); loadTopLosers(); loadTopMutualFunds(); loadPortfolioMini(); }
+        async function loadTopGainers() { try { const res = await fetch(`${API_BASE}/market/gainers`); const data = await res.json(); renderStockList('topGainers', data); } catch { document.getElementById('topGainers').innerHTML = '<div class="empty-state">Failed to load</div>'; } }
+        async function loadTopLosers() { try { const res = await fetch(`${API_BASE}/market/losers`); const data = await res.json(); renderStockList('topLosers', data); } catch { document.getElementById('topLosers').innerHTML = '<div class="empty-state">Failed to load</div>'; } }
+        async function loadTopMutualFunds() { try { const res = await fetch(`${API_BASE}/market/mutualfunds`); const data = await res.json(); renderMutualFunds(data.slice(0, 4)); } catch { document.getElementById('topMutualFunds').innerHTML = '<div class="empty-state">Failed to load</div>'; } }
 
         async function loadPortfolioMini() {
             try {
-                const res = await fetch(`${API_BASE}/portfolio/summary`);
-                const data = await res.json();
-                const current = parseFloat(data.currentValue);
-                const ret = parseFloat(data.returnPercent);
-                document.getElementById('sidebarValue').textContent = formatCurrency(current);
-                document.getElementById('exploreCurrentValue').textContent = formatCurrency(current);
-                const retEl = document.getElementById('exploreReturn');
-                retEl.textContent = `${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%`;
-                retEl.className = `stat-change ${ret >= 0 ? 'positive' : 'negative'}`;
+                const res = await fetch(`${API_BASE}/portfolio/summary`); const data = await res.json();
+                walletBalance = parseFloat(data.cashBalance || 0);
+                document.getElementById('sidebarWallet').textContent = formatCurrency(walletBalance);
+                document.getElementById('sidebarPortfolio').textContent = formatCurrency(data.currentValue);
+                document.getElementById('exploreCurrentValue').textContent = formatCurrency(data.currentValue);
+                const ret = parseFloat(data.returnPercent || 0);
+                const retEl = document.getElementById('exploreReturn'); retEl.textContent = `${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%`; retEl.className = `stat-change ${ret >= 0 ? 'positive' : 'negative'}`;
             } catch { }
         }
 
         function renderStockList(containerId, stocks) {
             const container = document.getElementById(containerId);
-            if (!stocks.length) {
-                container.innerHTML = '<div class="empty-state">No data available</div>';
-                return;
-            }
+            if (!stocks || !stocks.length) { container.innerHTML = '<div class="empty-state">No data available</div>'; return; }
             container.innerHTML = stocks.map(s => {
                 const isPositive = parseFloat(s.changePercent) >= 0;
-                return `
-                    <div class="stock-item" onclick="openStockDetail('${s.ticker}')">
-                        <div class="stock-info">
-                            <div class="stock-icon">${s.ticker.substring(0, 2)}</div>
-                            <div>
-                                <div class="stock-name">${s.name || s.ticker}</div>
-                                <div class="stock-ticker">${s.ticker}</div>
-                            </div>
-                        </div>
-                        <div class="stock-price">
-                            <div class="stock-price-value">${formatCurrency(s.price)}</div>
-                            <div class="stock-change ${isPositive ? 'positive' : 'negative'}">
-                                ${isPositive ? '+' : ''}${parseFloat(s.changePercent).toFixed(2)}%
-                            </div>
-                        </div>
-                    </div>
-                `;
+                return `<div class="stock-item" onclick="openStockDetail('${s.ticker}')"><div class="stock-info"><div class="stock-icon">${s.ticker.substring(0, 2)}</div><div><div class="stock-name">${s.name || s.ticker}</div><div class="stock-ticker">${s.ticker}</div></div></div><div class="stock-price"><div class="stock-price-value">${formatCurrency(s.price)}</div><div class="stock-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${parseFloat(s.changePercent).toFixed(2)}%</div></div></div>`;
             }).join('');
         }
 
         function renderMutualFunds(funds) {
             const container = document.getElementById('topMutualFunds');
-            container.innerHTML = `<div class="grid-2" style="gap: 10px;">
-                ${funds.map(f => `
-                    <div class="mf-card">
-                        <div class="mf-name">${f.schemeName}</div>
-                        <div class="mf-house">${f.fundHouse}</div>
-                        <div class="mf-stats">
-                            <div class="mf-stat">
-                                <div class="mf-stat-label">NAV</div>
-                                <div class="mf-stat-value">₹${parseFloat(f.nav).toFixed(2)}</div>
-                            </div>
-                            <div class="mf-stat">
-                                <div class="mf-stat-label">1Y Return</div>
-                                <div class="mf-stat-value positive">${parseFloat(f.oneYearReturn).toFixed(1)}%</div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>`;
+            if (!funds || !funds.length) { container.innerHTML = '<div class="empty-state">No data</div>'; return; }
+            container.innerHTML = `<div class="grid-2" style="gap: 10px;">${funds.map(f => `<div class="mf-card"><div class="mf-name">${f.schemeName}</div><div class="mf-house">${f.fundHouse}</div><div class="mf-stats"><div class="mf-stat"><div class="mf-stat-label">NAV</div><div class="mf-stat-value">₹${parseFloat(f.nav).toFixed(2)}</div></div><div class="mf-stat"><div class="mf-stat-label">1Y</div><div class="mf-stat-value positive">${parseFloat(f.oneYearReturn).toFixed(1)}%</div></div></div></div>`).join('')}</div>`;
         }
 
-        // HOLDINGS PAGE
-        async function loadHoldingsPage() {
-            await loadHoldings();
-            await loadPortfolioSummary();
-            renderAllocationChart();
-        }
-
-        async function loadHoldings() {
-            try {
-                const res = await fetch(`${API_BASE}/holdings`);
-                holdingsData = await res.json();
-                await enrichHoldings();
-                renderHoldingsTable();
-            } catch { document.getElementById('holdingsBody').innerHTML = '<tr><td colspan="6" class="empty-state">Failed to load</td></tr>'; }
-        }
-
-        async function enrichHoldings() {
-            for (let h of holdingsData) {
-                try {
-                    const res = await fetch(`${API_BASE}/prices/${h.ticker}`);
-                    const price = await res.json();
-                    h.currentPrice = parseFloat(price.price);
-                    h.currentValue = h.currentPrice * parseFloat(h.quantity);
-                    h.invested = parseFloat(h.quantity) * parseFloat(h.avgBuyPrice);
-                    h.pl = h.currentValue - h.invested;
-                    h.plPercent = (h.pl / h.invested) * 100;
-                } catch {
-                    h.currentPrice = parseFloat(h.avgBuyPrice);
-                    h.currentValue = parseFloat(h.quantity) * h.currentPrice;
-                    h.invested = h.currentValue;
-                    h.pl = 0;
-                    h.plPercent = 0;
-                }
-            }
-        }
-
-        function renderHoldingsTable() {
-            const tbody = document.getElementById('holdingsBody');
-            if (!holdingsData.length) {
-                tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-wallet"></i><p>No holdings yet. Buy your first stock!</p></div></td></tr>';
-                return;
-            }
-            tbody.innerHTML = holdingsData.map(h => {
-                const isPositive = h.pl >= 0;
-                return `
-                    <tr>
-                        <td>
-                            <div class="stock-info">
-                                <div class="stock-icon">${h.ticker.substring(0, 2)}</div>
-                                <div>
-                                    <div class="stock-name">${h.ticker}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${parseFloat(h.quantity).toFixed(2)}</td>
-                        <td>${formatCurrency(h.avgBuyPrice)}</td>
-                        <td>${formatCurrency(h.currentPrice)}</td>
-                        <td class="${isPositive ? 'positive' : 'negative'}">
-                            ${isPositive ? '+' : ''}${formatCurrency(h.pl)}<br>
-                            <small>${isPositive ? '+' : ''}${h.plPercent.toFixed(2)}%</small>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-sell" onclick="openSellModal('${h.ticker}', ${h.quantity}, ${h.currentPrice})">Sell</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
+        async function loadHoldingsPage() { await loadHoldings(); await loadPortfolioSummary(); renderAllocationChart(); }
+        async function loadHoldings() { try { const res = await fetch(`${API_BASE}/holdings`); holdingsData = await res.json(); await enrichHoldings(); renderHoldingsTable(); } catch { document.getElementById('holdingsBody').innerHTML = '<tr><td colspan="6" class="empty-state">Failed</td></tr>'; } }
+        async function enrichHoldings() { for (let h of holdingsData) { try { const res = await fetch(`${API_BASE}/prices/${h.ticker}`); const price = await res.json(); h.currentPrice = parseFloat(price.price); h.currentValue = h.currentPrice * parseFloat(h.quantity); h.invested = parseFloat(h.quantity) * parseFloat(h.avgBuyPrice); h.pl = h.currentValue - h.invested; h.plPercent = h.invested > 0 ? (h.pl / h.invested) * 100 : 0; } catch { h.currentPrice = parseFloat(h.avgBuyPrice); h.currentValue = parseFloat(h.quantity) * h.currentPrice; h.invested = h.currentValue; h.pl = 0; h.plPercent = 0; } } }
+        function renderHoldingsTable() { const tbody = document.getElementById('holdingsBody'); if (!holdingsData.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-wallet"></i><p>No holdings yet</p></div></td></tr>'; return; } tbody.innerHTML = holdingsData.map(h => { const isPositive = h.pl >= 0; return `<tr><td><div class="stock-info"><div class="stock-icon">${h.ticker.substring(0, 2)}</div><div class="stock-name">${h.ticker}</div></div></td><td>${parseFloat(h.quantity).toFixed(2)}</td><td>${formatCurrency(h.avgBuyPrice)}</td><td>${formatCurrency(h.currentPrice)}</td><td class="${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${formatCurrency(h.pl)}</td><td><button class="btn btn-sm btn-sell" onclick="openSellModal('${h.ticker}', ${h.quantity}, ${h.currentPrice})">Sell</button></td></tr>`; }).join(''); }
 
         async function loadPortfolioSummary() {
             try {
-                const res = await fetch(`${API_BASE}/portfolio/summary`);
-                const data = await res.json();
+                const res = await fetch(`${API_BASE}/portfolio/summary`); const data = await res.json();
+                walletBalance = parseFloat(data.cashBalance || 0);
+                document.getElementById('holdingsCashBalance').textContent = formatCurrency(walletBalance);
                 document.getElementById('holdingsCurrentValue').textContent = formatCurrency(data.currentValue);
                 document.getElementById('holdingsTotalInvested').textContent = formatCurrency(data.totalInvested);
-                const pl = parseFloat(data.profitLoss);
-                const ret = parseFloat(data.returnPercent);
-                document.getElementById('holdingsProfitLoss').textContent = `${pl >= 0 ? '+' : ''}${formatCurrency(pl)}`;
-                document.getElementById('holdingsProfitLoss').style.color = pl >= 0 ? 'var(--success)' : 'var(--danger)';
-                document.getElementById('holdingsReturns').textContent = `${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%`;
-                document.getElementById('holdingsReturns').style.color = ret >= 0 ? 'var(--success)' : 'var(--danger)';
+                const pl = parseFloat(data.profitLoss); document.getElementById('holdingsProfitLoss').textContent = `${pl >= 0 ? '+' : ''}${formatCurrency(pl)}`; document.getElementById('holdingsProfitLoss').style.color = pl >= 0 ? 'var(--success)' : 'var(--danger)';
+                const ret = parseFloat(data.returnPercent); document.getElementById('holdingsReturns').textContent = `${ret >= 0 ? '+' : ''}${ret.toFixed(2)}%`; document.getElementById('holdingsReturns').style.color = ret >= 0 ? 'var(--success)' : 'var(--danger)';
+                document.getElementById('sidebarWallet').textContent = formatCurrency(walletBalance);
+                document.getElementById('sidebarPortfolio').textContent = formatCurrency(data.currentValue);
             } catch { }
         }
 
-        function renderAllocationChart() {
-            if (!holdingsData.length) return;
-            const ctx = document.getElementById('allocationChart').getContext('2d');
-            const colors = ['#00d09c', '#5367ff', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4', '#8bc34a', '#ff5722'];
-            if (allocationChart) allocationChart.destroy();
-            allocationChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: holdingsData.map(h => h.ticker),
-                    datasets: [{
-                        data: holdingsData.map(h => h.currentValue),
-                        backgroundColor: colors.slice(0, holdingsData.length),
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '65%',
-                    plugins: { legend: { position: 'bottom', labels: { color: '#8b949e' } } }
-                }
-            });
-        }
+        function renderAllocationChart() { if (!holdingsData.length) return; const ctx = document.getElementById('allocationChart').getContext('2d'); const colors = ['#00d09c', '#5367ff', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4', '#8bc34a', '#ff5722']; if (allocationChart) allocationChart.destroy(); allocationChart = new Chart(ctx, { type: 'doughnut', data: { labels: holdingsData.map(h => h.ticker), datasets: [{ data: holdingsData.map(h => h.currentValue), backgroundColor: colors.slice(0, holdingsData.length), borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { color: '#8b949e' } } } } }); }
 
-        // ORDERS PAGE
-        async function loadOrdersPage() {
-            try {
-                const res = await fetch(`${API_BASE}/orders`);
-                const orders = await res.json();
-                renderOrdersTable(orders);
-            } catch { document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7" class="empty-state">Failed to load</td></tr>'; }
-        }
+        async function loadOrdersPage() { try { const res = await fetch(`${API_BASE}/orders`); const orders = await res.json(); renderOrdersTable(orders); } catch { document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7" class="empty-state">Failed</td></tr>'; } }
+        function renderOrdersTable(orders) { const tbody = document.getElementById('ordersBody'); if (!orders.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-exchange-alt"></i><p>No orders</p></div></td></tr>'; return; } tbody.innerHTML = orders.map(o => `<tr><td>${new Date(o.createdAt).toLocaleDateString()}</td><td><strong>${o.ticker}</strong></td><td><span class="tag tag-${o.orderType.toLowerCase()}">${o.orderType}</span></td><td>${parseFloat(o.quantity).toFixed(2)}</td><td>${formatCurrency(o.price)}</td><td><strong>${formatCurrency(o.totalAmount)}</strong></td><td><span class="tag tag-${o.status.toLowerCase()}">${o.status}</span></td></tr>`).join(''); }
 
-        function renderOrdersTable(orders) {
-            const tbody = document.getElementById('ordersBody');
-            if (!orders.length) {
-                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fas fa-exchange-alt"></i><p>No orders yet</p></div></td></tr>';
-                return;
-            }
-            tbody.innerHTML = orders.map(o => `
-                <tr>
-                    <td>${new Date(o.createdAt).toLocaleString()}</td>
-                    <td><strong>${o.ticker}</strong></td>
-                    <td><span class="tag tag-${o.orderType.toLowerCase()}">${o.orderType}</span></td>
-                    <td>${parseFloat(o.quantity).toFixed(2)}</td>
-                    <td>${formatCurrency(o.price)}</td>
-                    <td><strong>${formatCurrency(o.totalAmount)}</strong></td>
-                    <td><span class="tag tag-${o.status.toLowerCase()}">${o.status}</span></td>
-                </tr>
-            `).join('');
-        }
+        async function loadWatchlistPage() { try { const res = await fetch(`${API_BASE}/watchlist`); const items = await res.json(); renderWatchlist(items); } catch { document.getElementById('watchlistBody').innerHTML = '<tr><td colspan="5" class="empty-state">Failed</td></tr>'; } }
+        function renderWatchlist(items) { const tbody = document.getElementById('watchlistBody'); if (!items.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-star"></i><p>Empty</p></div></td></tr>'; return; } tbody.innerHTML = items.map(w => { const isPositive = parseFloat(w.changePercent) >= 0; return `<tr><td><div class="stock-info"><div class="stock-icon">${w.ticker.substring(0, 2)}</div><div><div class="stock-name">${w.companyName || w.ticker}</div><div class="stock-ticker">${w.ticker}</div></div></div></td><td>${formatCurrency(w.currentPrice)}</td><td class="${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${parseFloat(w.changePercent).toFixed(2)}%</td><td>${new Date(w.addedAt).toLocaleDateString()}</td><td><button class="btn btn-sm btn-buy" onclick="openBuyModalFor('${w.ticker}')">Buy</button><button class="btn-icon" onclick="removeFromWatchlist(${w.id})"><i class="fas fa-trash"></i></button></td></tr>`; }).join(''); }
 
-        // WATCHLIST PAGE
-        async function loadWatchlistPage() {
-            try {
-                const res = await fetch(`${API_BASE}/watchlist`);
-                const items = await res.json();
-                renderWatchlist(items);
-            } catch { document.getElementById('watchlistBody').innerHTML = '<tr><td colspan="5" class="empty-state">Failed to load</td></tr>'; }
-        }
+        let tickerTimeout;
+        function onTickerInput() { clearTimeout(tickerTimeout); const ticker = document.getElementById('tradeTicker').value.trim().toUpperCase(); if (ticker.length >= 1) { tickerTimeout = setTimeout(() => fetchLivePrice(ticker), 500); } else { hidePriceDisplay(); } }
 
-        function renderWatchlist(items) {
-            const tbody = document.getElementById('watchlistBody');
-            if (!items.length) {
-                tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-star"></i><p>Your watchlist is empty</p></div></td></tr>';
-                return;
-            }
-            tbody.innerHTML = items.map(w => {
-                const isPositive = parseFloat(w.changePercent) >= 0;
-                return `
-                    <tr>
-                        <td>
-                            <div class="stock-info">
-                                <div class="stock-icon">${w.ticker.substring(0, 2)}</div>
-                                <div>
-                                    <div class="stock-name">${w.companyName || w.ticker}</div>
-                                    <div class="stock-ticker">${w.ticker}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${formatCurrency(w.currentPrice)}</td>
-                        <td class="${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${parseFloat(w.changePercent).toFixed(2)}%</td>
-                        <td>${new Date(w.addedAt).toLocaleDateString()}</td>
-                        <td>
-                            <button class="btn btn-sm btn-buy" onclick="openBuyModalFor('${w.ticker}')">Buy</button>
-                            <button class="btn-icon" onclick="removeFromWatchlist(${w.id})" title="Remove"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
+        async function fetchLivePrice(ticker) { document.getElementById('priceDisplaySection').style.display = 'block'; document.getElementById('livePrice').innerHTML = '<div class="spinner spinner-sm"></div> Fetching...'; document.getElementById('tradeSubmitBtn').disabled = true; try { const res = await fetch(`${API_BASE}/prices/${ticker}`); if (!res.ok) throw new Error(); const data = await res.json(); currentLivePrice = parseFloat(data.price); document.getElementById('livePrice').textContent = formatCurrency(currentLivePrice); document.getElementById('tradePrice').value = currentLivePrice; document.getElementById('tradeSubmitBtn').disabled = false; updateOrderSummary(); updateTradeButtonText(); } catch { document.getElementById('livePrice').innerHTML = '<span style="color: var(--danger);">Not found</span>'; currentLivePrice = 0; document.getElementById('tradeSubmitBtn').disabled = true; } }
+        function hidePriceDisplay() { document.getElementById('priceDisplaySection').style.display = 'none'; document.getElementById('orderSummarySection').style.display = 'none'; document.getElementById('tradeSubmitBtn').disabled = true; currentLivePrice = 0; }
+        function updateOrderSummary() { const qty = parseFloat(document.getElementById('tradeQuantity').value) || 0; if (currentLivePrice > 0 && qty > 0) { const total = currentLivePrice * qty; document.getElementById('orderSummarySection').style.display = 'block'; document.getElementById('summaryPrice').textContent = formatCurrency(currentLivePrice); document.getElementById('summaryQuantity').textContent = qty; document.getElementById('summaryTotal').textContent = formatCurrency(total); updateTradeButtonText(); } else { document.getElementById('orderSummarySection').style.display = 'none'; } }
+        function updateTradeButtonText() { const orderType = document.getElementById('tradeType').value; const qty = parseFloat(document.getElementById('tradeQuantity').value) || 0; const total = currentLivePrice * qty; const btn = document.getElementById('tradeSubmitBtn'); const btnText = document.getElementById('tradeBtnText'); if (currentLivePrice <= 0) { btnText.textContent = 'Fetch Price First'; btn.disabled = true; return; } if (qty <= 0) { btnText.textContent = 'Enter Quantity'; btn.disabled = true; return; } if (orderType === 'BUY') { if (total > walletBalance) { btnText.textContent = `Insufficient Funds`; btn.disabled = true; btn.className = 'btn btn-secondary'; } else { btnText.textContent = `Buy for ${formatCurrency(total)}`; btn.disabled = false; btn.className = 'btn btn-buy'; } } else { btnText.textContent = `Sell for ${formatCurrency(total)}`; btn.disabled = false; btn.className = 'btn btn-sell'; } }
 
-        // MODALS
-        function openBuyModal() {
-            document.getElementById('tradeModalTitle').textContent = 'Buy Stock';
-            document.getElementById('tradeType').value = 'BUY';
-            document.getElementById('tradeSubmitBtn').className = 'btn btn-buy';
-            document.getElementById('tradeSubmitBtn').innerHTML = '<i class="fas fa-shopping-cart"></i> Buy';
-            document.getElementById('tradeTicker').value = '';
-            document.getElementById('tradeQuantity').value = '';
-            document.getElementById('tradePrice').value = '';
-            document.getElementById('tradeModal').classList.add('active');
-        }
-
-        function openBuyModalFor(ticker) {
-            openBuyModal();
-            document.getElementById('tradeTicker').value = ticker;
-            fetchCurrentPrice(ticker);
-        }
-
-        function openSellModal(ticker, qty, price) {
-            document.getElementById('tradeModalTitle').textContent = 'Sell Stock';
-            document.getElementById('tradeType').value = 'SELL';
-            document.getElementById('tradeSubmitBtn').className = 'btn btn-sell';
-            document.getElementById('tradeSubmitBtn').innerHTML = '<i class="fas fa-dollar-sign"></i> Sell';
-            document.getElementById('tradeTicker').value = ticker;
-            document.getElementById('tradeQuantity').value = qty;
-            document.getElementById('tradePrice').value = price.toFixed(2);
-            document.getElementById('tradeModal').classList.add('active');
-        }
-
+        function openBuyModal() { document.getElementById('tradeModalTitle').textContent = 'Buy Stock'; document.getElementById('tradeType').value = 'BUY'; document.getElementById('tradeTicker').value = ''; document.getElementById('tradeQuantity').value = ''; currentLivePrice = 0; hidePriceDisplay(); document.getElementById('tradeModal').classList.add('active'); }
+        function openBuyModalFor(ticker) { openBuyModal(); document.getElementById('tradeTicker').value = ticker; fetchLivePrice(ticker); }
+        function openSellModal(ticker, qty, price) { document.getElementById('tradeModalTitle').textContent = 'Sell Stock'; document.getElementById('tradeType').value = 'SELL'; document.getElementById('tradeTicker').value = ticker; document.getElementById('tradeQuantity').value = qty; currentLivePrice = price; document.getElementById('tradePrice').value = price; document.getElementById('priceDisplaySection').style.display = 'block'; document.getElementById('livePrice').textContent = formatCurrency(price); updateOrderSummary(); document.getElementById('tradeModal').classList.add('active'); }
         function closeTradeModal() { document.getElementById('tradeModal').classList.remove('active'); }
 
-        async function fetchCurrentPrice(ticker) {
-            try {
-                const res = await fetch(`${API_BASE}/prices/${ticker}`);
-                const data = await res.json();
-                document.getElementById('tradePrice').value = parseFloat(data.price).toFixed(2);
-            } catch { }
-        }
-
-        async function executeTrade(e) {
-            e.preventDefault();
-            const ticker = document.getElementById('tradeTicker').value.toUpperCase();
-            const quantity = parseFloat(document.getElementById('tradeQuantity').value);
-            const price = parseFloat(document.getElementById('tradePrice').value);
-            const orderType = document.getElementById('tradeType').value;
-
-            try {
-                const res = await fetch(`${API_BASE}/orders`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ticker, quantity, price, orderType })
-                });
-                if (res.ok) {
-                    showToast(`${orderType} order for ${ticker} executed!`, 'success');
-                    closeTradeModal();
-                    if (currentPage === 'holdings') loadHoldingsPage();
-                    else if (currentPage === 'orders') loadOrdersPage();
-                    loadPortfolioMini();
-                } else {
-                    const err = await res.json();
-                    showToast(err.message || 'Order failed', 'error');
-                }
-            } catch { showToast('Order failed', 'error'); }
-        }
+        async function executeTrade(e) { e.preventDefault(); const ticker = document.getElementById('tradeTicker').value.toUpperCase(); const quantity = parseFloat(document.getElementById('tradeQuantity').value); const orderType = document.getElementById('tradeType').value; try { const res = await fetch(`${API_BASE}/orders`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticker, quantity, price: currentLivePrice, orderType }) }); if (res.ok) { const order = await res.json(); showToast(`${orderType} order: ${quantity} ${ticker} @ ${formatCurrency(order.price)}`, 'success'); closeTradeModal(); if (currentPage === 'holdings') loadHoldingsPage(); else if (currentPage === 'orders') loadOrdersPage(); loadPortfolioMini(); } else { const err = await res.json(); showToast(err.message || 'Order failed', 'error'); } } catch { showToast('Order failed', 'error'); } }
 
         function openAddWatchlistModal() { document.getElementById('watchlistModal').classList.add('active'); }
         function closeWatchlistModal() { document.getElementById('watchlistModal').classList.remove('active'); }
+        async function addToWatchlist(e) { e.preventDefault(); const ticker = document.getElementById('watchlistTicker').value.toUpperCase(); try { const res = await fetch(`${API_BASE}/watchlist`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticker }) }); if (res.ok) { showToast(`${ticker} added!`, 'success'); closeWatchlistModal(); document.getElementById('watchlistTicker').value = ''; loadWatchlistPage(); } else { const err = await res.json(); showToast(err.message || 'Failed', 'error'); } } catch { showToast('Failed', 'error'); } }
+        async function removeFromWatchlist(id) { if (!confirm('Remove?')) return; try { await fetch(`${API_BASE}/watchlist/${id}`, { method: 'DELETE' }); showToast('Removed', 'success'); loadWatchlistPage(); } catch { showToast('Failed', 'error'); } }
 
-        async function addToWatchlist(e) {
-            e.preventDefault();
-            const ticker = document.getElementById('watchlistTicker').value.toUpperCase();
-            const notes = document.getElementById('watchlistNotes').value;
-            try {
-                const res = await fetch(`${API_BASE}/watchlist`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ticker, notes })
-                });
-                if (res.ok) {
-                    showToast(`${ticker} added to watchlist!`, 'success');
-                    closeWatchlistModal();
-                    document.getElementById('watchlistTicker').value = '';
-                    document.getElementById('watchlistNotes').value = '';
-                    loadWatchlistPage();
-                } else {
-                    const err = await res.json();
-                    showToast(err.message || 'Failed to add', 'error');
-                }
-            } catch { showToast('Failed to add to watchlist', 'error'); }
-        }
+        function openStockDetail(ticker) { document.getElementById('stockDetailModal').classList.add('active'); loadStockDetailWithHistory(ticker); }
+        function closeStockDetailModal() { document.getElementById('stockDetailModal').classList.remove('active'); if (priceChart) { priceChart.destroy(); priceChart = null; } }
 
-        async function removeFromWatchlist(id) {
-            if (!confirm('Remove from watchlist?')) return;
-            try {
-                await fetch(`${API_BASE}/watchlist/${id}`, { method: 'DELETE' });
-                showToast('Removed from watchlist', 'success');
-                loadWatchlistPage();
-            } catch { showToast('Failed to remove', 'error'); }
-        }
-
-        function openStockDetail(ticker) {
-            document.getElementById('stockDetailModal').classList.add('active');
-            loadStockDetail(ticker);
-        }
-
-        function closeStockDetailModal() { document.getElementById('stockDetailModal').classList.remove('active'); }
-
-        async function loadStockDetail(ticker) {
+        async function loadStockDetailWithHistory(ticker) {
             const container = document.getElementById('stockDetailContent');
             container.innerHTML = '<div class="spinner"></div>';
             try {
-                const res = await fetch(`${API_BASE}/market/stock/${ticker}`);
+                const res = await fetch(`${API_BASE}/market/stock/${ticker}/history`);
                 const s = await res.json();
                 const isPositive = parseFloat(s.changePercent) >= 0;
                 container.innerHTML = `
@@ -1491,111 +1245,58 @@
                         <div>
                             <div class="stock-detail-name">${s.name || s.ticker}</div>
                             <div class="stock-detail-ticker">${s.ticker} • ${s.exchange || 'NASDAQ'}</div>
+                            ${s.sector ? `<span class="sector-tag">${s.sector}</span>` : ''}${s.industry ? `<span class="sector-tag">${s.industry}</span>` : ''}
                         </div>
                     </div>
-                    <div class="stock-detail-price">
-                        ${formatCurrency(s.price)}
-                        <span class="stat-change ${isPositive ? 'positive' : 'negative'}" style="font-size: 1rem; margin-left: 8px;">
-                            ${isPositive ? '+' : ''}${parseFloat(s.changePercent).toFixed(2)}%
-                        </span>
-                    </div>
+                    <div class="stock-detail-price">${formatCurrency(s.price)}<span class="stat-change ${isPositive ? 'positive' : 'negative'}" style="font-size: 1rem; margin-left: 8px;">${isPositive ? '+' : ''}${parseFloat(s.changePercent).toFixed(2)}%</span></div>
+                    
+                    <div class="chart-section"><div class="chart-title"><i class="fas fa-chart-line"></i> 6-Month Price History</div><div class="price-chart"><canvas id="priceHistoryChart"></canvas></div></div>
+                    
                     <div class="stock-detail-grid">
-                        <div class="stock-detail-item">
-                            <div class="stock-detail-label">Open</div>
-                            <div class="stock-detail-value">${formatCurrency(s.open)}</div>
-                        </div>
-                        <div class="stock-detail-item">
-                            <div class="stock-detail-label">High</div>
-                            <div class="stock-detail-value">${formatCurrency(s.high)}</div>
-                        </div>
-                        <div class="stock-detail-item">
-                            <div class="stock-detail-label">Low</div>
-                            <div class="stock-detail-value">${formatCurrency(s.low)}</div>
-                        </div>
-                        <div class="stock-detail-item">
-                            <div class="stock-detail-label">Previous Close</div>
-                            <div class="stock-detail-value">${formatCurrency(s.previousClose)}</div>
-                        </div>
-                        <div class="stock-detail-item">
-                            <div class="stock-detail-label">Volume</div>
-                            <div class="stock-detail-value">${s.volume ? s.volume.toLocaleString() : 'N/A'}</div>
-                        </div>
-                        <div class="stock-detail-item">
-                            <div class="stock-detail-label">Market Cap</div>
-                            <div class="stock-detail-value">${s.marketCap ? formatLargeNumber(s.marketCap) : 'N/A'}</div>
-                        </div>
-                        <div class="stock-detail-item">
-                            <div class="stock-detail-label">P/E Ratio</div>
-                            <div class="stock-detail-value">${s.peRatio ? parseFloat(s.peRatio).toFixed(2) : 'N/A'}</div>
-                        </div>
-                        <div class="stock-detail-item">
-                            <div class="stock-detail-label">EPS</div>
-                            <div class="stock-detail-value">${s.eps ? formatCurrency(s.eps) : 'N/A'}</div>
-                        </div>
-                        <div class="stock-detail-item">
-                            <div class="stock-detail-label">52W High</div>
-                            <div class="stock-detail-value">${formatCurrency(s.fiftyTwoWeekHigh)}</div>
-                        </div>
-                        <div class="stock-detail-item">
-                            <div class="stock-detail-label">52W Low</div>
-                            <div class="stock-detail-value">${formatCurrency(s.fiftyTwoWeekLow)}</div>
-                        </div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">Open</div><div class="stock-detail-value">${formatCurrency(s.open)}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">High</div><div class="stock-detail-value">${formatCurrency(s.high)}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">Low</div><div class="stock-detail-value">${formatCurrency(s.low)}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">Prev Close</div><div class="stock-detail-value">${formatCurrency(s.previousClose)}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">Volume</div><div class="stock-detail-value">${s.volume ? formatLargeNumber(s.volume) : 'N/A'}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">Avg Volume</div><div class="stock-detail-value">${s.avgVolume ? formatLargeNumber(s.avgVolume) : 'N/A'}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">Market Cap</div><div class="stock-detail-value">${s.marketCap ? formatLargeNumber(s.marketCap) : 'N/A'}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">P/E Ratio</div><div class="stock-detail-value">${s.peRatio ? parseFloat(s.peRatio).toFixed(2) : 'N/A'}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">EPS</div><div class="stock-detail-value">${s.eps ? formatCurrency(s.eps) : 'N/A'}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">52W High</div><div class="stock-detail-value">${formatCurrency(s.fiftyTwoWeekHigh)}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">52W Low</div><div class="stock-detail-value">${formatCurrency(s.fiftyTwoWeekLow)}</div></div>
+                        <div class="stock-detail-item"><div class="stock-detail-label">Currency</div><div class="stock-detail-value">${s.currency || 'USD'}</div></div>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-buy" onclick="openBuyModalFor('${s.ticker}'); closeStockDetailModal();">
-                            <i class="fas fa-shopping-cart"></i> Buy
-                        </button>
-                        <button class="btn btn-secondary" onclick="quickAddToWatchlist('${s.ticker}')">
-                            <i class="fas fa-star"></i> Watchlist
-                        </button>
-                    </div>
-                `;
-            } catch { container.innerHTML = '<div class="empty-state">Failed to load stock details</div>'; }
+                    <div style="display: flex; gap: 10px;"><button class="btn btn-buy" onclick="openBuyModalFor('${s.ticker}'); closeStockDetailModal();"><i class="fas fa-shopping-cart"></i> Buy</button><button class="btn btn-secondary" onclick="quickAddToWatchlist('${s.ticker}')"><i class="fas fa-star"></i> Watchlist</button></div>`;
+
+                // Render price chart
+                if (s.historicalData && s.historicalData.length > 0) {
+                    setTimeout(() => renderPriceChart(s.historicalData), 100);
+                }
+            } catch { container.innerHTML = '<div class="empty-state">Failed to load</div>'; }
         }
 
-        async function quickAddToWatchlist(ticker) {
-            try {
-                await fetch(`${API_BASE}/watchlist`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ticker })
-                });
-                showToast(`${ticker} added to watchlist!`, 'success');
-            } catch { showToast('Failed to add', 'error'); }
-        }
+        function renderPriceChart(data) {
+            const ctx = document.getElementById('priceHistoryChart');
+            if (!ctx) return;
 
-        function searchStock() {
-            const ticker = document.getElementById('exploreSearch').value.trim().toUpperCase();
-            if (ticker) openStockDetail(ticker);
-        }
+            const labels = data.map(d => d.date);
+            const prices = data.map(d => parseFloat(d.close));
+            const isUp = prices[prices.length - 1] >= prices[0];
 
-        // Utilities
-        function formatCurrency(val) {
-            return '$' + parseFloat(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function formatLargeNumber(val) {
-            const num = parseFloat(val);
-            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
-            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-            return num.toLocaleString();
-        }
-
-        function showToast(msg, type) {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>${msg}`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        // Close modals on overlay click
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', e => {
-                if (e.target === overlay) overlay.classList.remove('active');
+            if (priceChart) priceChart.destroy();
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets: [{ label: 'Price', data: prices, borderColor: isUp ? '#00d09c' : '#f85149', backgroundColor: isUp ? 'rgba(0, 208, 156, 0.1)' : 'rgba(248, 81, 73, 0.1)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { grid: { color: 'rgba(48, 54, 61, 0.5)' }, ticks: { color: '#8b949e', callback: v => '$' + v.toFixed(0) } } }, interaction: { intersect: false, mode: 'index' } }
             });
-        });
+        }
+
+        async function quickAddToWatchlist(ticker) { try { await fetch(`${API_BASE}/watchlist`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticker }) }); showToast(`${ticker} added!`, 'success'); } catch { showToast('Failed', 'error'); } }
+        function searchStock() { const ticker = document.getElementById('exploreSearch').value.trim().toUpperCase(); if (ticker) openStockDetail(ticker); }
+        function formatCurrency(val) { return '$' + parseFloat(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function formatLargeNumber(val) { const num = parseFloat(val); if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T'; if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B'; if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M'; if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K'; return num.toLocaleString(); }
+        function showToast(msg, type) { const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>${msg}`; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+        document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); }); });
     </script>
 </body>
 

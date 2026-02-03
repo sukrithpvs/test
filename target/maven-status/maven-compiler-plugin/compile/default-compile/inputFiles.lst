@@ -28,6 +28,7 @@ C:\Users\sukri\Desktop\Project\src\main\java\com\portfolio\manager\service\Marke
 C:\Users\sukri\Desktop\Project\src\main\java\com\portfolio\manager\dto\request\AddHoldingRequest.java
 C:\Users\sukri\Desktop\Project\src\main\java\com\portfolio\manager\service\PortfolioAnalyticsService.java
 C:\Users\sukri\Desktop\Project\src\main\java\com\portfolio\manager\repository\OrderRepository.java
+C:\Users\sukri\Desktop\Project\src\main\java\com\portfolio\manager\dto\response\StockHistoryResponse.java
 C:\Users\sukri\Desktop\Project\src\main\java\com\portfolio\manager\exception\ResourceNotFoundException.java
 C:\Users\sukri\Desktop\Project\src\main\java\com\portfolio\manager\service\WatchlistService.java
 C:\Users\sukri\Desktop\Project\src\main\java\com\portfolio\manager\config\SwaggerConfig.java

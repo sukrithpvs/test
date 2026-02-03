@@ -3,6 +3,7 @@ package com.portfolio.manager.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,10 @@ public class Portfolio {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(name = "cash_balance", precision = 19, scale = 4)
+    @Builder.Default
+    private BigDecimal cashBalance = new BigDecimal("100000.00"); // Starting balance $100,000
 
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default

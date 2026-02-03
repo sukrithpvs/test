@@ -3,6 +3,7 @@ package com.portfolio.manager.controller;
 import com.portfolio.manager.dto.response.MarketMoverResponse;
 import com.portfolio.manager.dto.response.MutualFundResponse;
 import com.portfolio.manager.dto.response.StockDetailResponse;
+import com.portfolio.manager.dto.response.StockHistoryResponse;
 import com.portfolio.manager.service.MarketDataService;
 import com.portfolio.manager.service.MutualFundService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,6 +29,12 @@ public class MarketDataController {
         return ResponseEntity.ok(marketDataService.getStockDetail(ticker));
     }
 
+    @GetMapping("/stock/{ticker}/history")
+    @Operation(summary = "Get stock with 6-month historical data for charts")
+    public ResponseEntity<StockHistoryResponse> getStockWithHistory(@PathVariable String ticker) {
+        return ResponseEntity.ok(marketDataService.getStockWithHistory(ticker));
+    }
+
     @GetMapping("/gainers")
     @Operation(summary = "Get top gaining stocks")
     public ResponseEntity<List<MarketMoverResponse>> getTopGainers() {
@@ -38,12 +45,6 @@ public class MarketDataController {
     @Operation(summary = "Get top losing stocks")
     public ResponseEntity<List<MarketMoverResponse>> getTopLosers() {
         return ResponseEntity.ok(marketDataService.getTopLosers());
-    }
-
-    @GetMapping("/active")
-    @Operation(summary = "Get most active stocks by volume")
-    public ResponseEntity<List<MarketMoverResponse>> getMostActive() {
-        return ResponseEntity.ok(marketDataService.getMostActive());
     }
 
     @GetMapping("/mutualfunds")

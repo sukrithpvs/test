@@ -3,11 +3,12 @@ import Navigation from './Navigation';
 import TickerTape from './TickerTape';
 import BackgroundEffects from './BackgroundEffects';
 import { useTheme } from '../context/ThemeContext';
+import ChatWidget from '../chatbot/ChatWidget';
 
 const AppLayout = ({ children }) => {
   const { theme } = useTheme();
   const bgColor = theme === 'black' ? '#000000' : theme === 'light' ? '#ffffff' : '#030014';
-  
+
   useEffect(() => {
     // Force background color on mount and theme change
     if (theme === 'black') {
@@ -18,10 +19,10 @@ const AppLayout = ({ children }) => {
       document.documentElement.style.backgroundColor = '#ffffff';
     }
   }, [theme]);
-  
+
   return (
-    <div 
-      className="min-h-screen transition-colors duration-500 relative overflow-x-hidden" 
+    <div
+      className="min-h-screen transition-colors duration-500 relative overflow-x-hidden"
       style={{ backgroundColor: bgColor }}
     >
       {/* Dynamic Background - Hidden in black mode */}
@@ -33,7 +34,7 @@ const AppLayout = ({ children }) => {
           <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-surreal-cyan/20 rounded-full blur-[120px] animate-float-slow" style={{ animationDelay: '-3s' }} />
         </div>
       )}
-      
+
       {/* Black mode - pure black background with animated effects */}
       {theme === 'black' && (
         <>
@@ -47,6 +48,8 @@ const AppLayout = ({ children }) => {
         <TickerTape />
         <main className="pb-20 max-w-[1600px] mx-auto px-4 md:px-8 pt-6">{children}</main>
       </div>
+
+      <ChatWidget />
     </div>
   );
 };

@@ -18,7 +18,9 @@ const HoldingsPage = () => {
     offset: ['start start', 'end start'],
   });
 
-  const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ec4899'];
+  const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#f97316', '#a855f7'];
+
+  const [selectedPeriod, setSelectedPeriod] = useState('1M');
 
   useEffect(() => {
     loadData();
@@ -89,23 +91,68 @@ const HoldingsPage = () => {
     }
   };
 
-  // Asset allocation based on holdings
-  const assetAllocation = holdings.length > 0 ? [
-    { name: 'Equity', value: 80, color: '#8b5cf6' },
-    { name: 'Cash', value: 20, color: '#10b981' },
-  ] : [
-    { name: 'Cash', value: 100, color: '#10b981' },
-  ];
+  // Calculate asset allocation from actual holdings
+  const assetAllocation = React.useMemo(() => {
+    const totalHoldingsValue = holdings.reduce((sum, h) => sum + h.value, 0);
+    const cashValue = summary?.cashBalance || 0;
+    const totalValue = totalHoldingsValue + cashValue;
 
-  const performanceData = [
-    { name: 'Mon', value: (summary?.totalValue || 0) * 0.98 },
-    { name: 'Tue', value: (summary?.totalValue || 0) * 0.985 },
-    { name: 'Wed', value: (summary?.totalValue || 0) * 0.99 },
-    { name: 'Thu', value: (summary?.totalValue || 0) * 0.995 },
-    { name: 'Fri', value: (summary?.totalValue || 0) * 0.998 },
-    { name: 'Sat', value: (summary?.totalValue || 0) * 0.999 },
-    { name: 'Sun', value: summary?.totalValue || 0 },
-  ];
+    if (totalValue === 0) return [{ name: 'Cash', value: 100, color: COLORS[2] }];
+
+    const allocation = holdings.map((h, idx) => ({
+      name: h.ticker,
+      value: Math.round((h.value / totalValue) * 100),
+      color: COLORS[idx % COLORS.length]
+    })).filter(a => a.value > 0);
+
+    // Add cash if present
+    const cashPercent = Math.round((cashValue / totalValue) * 100);
+    if (cashPercent > 0) {
+      allocation.push({ name: 'Cash', value: cashPercent, color: '#10b981' });
+    }
+
+    return allocation.length > 0 ? allocation : [{ name: 'Cash', value: 100, color: '#10b981' }];
+  }, [holdings, summary]);
+
+  // Generate realistic historical performance data
+  const performanceData = React.useMemo(() => {
+    const currentValue = summary?.totalValue || 10000;
+    const dataPoints = [];
+    let days;
+
+    switch (selectedPeriod) {
+      case '1W': days = 7; break;
+      case '1M': days = 30; break;
+      case 'YTD': days = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 1)) / (1000 * 60 * 60 * 24)); break;
+      case '1Y': days = 365; break;
+      default: days = 30;
+    }
+
+    // Generate realistic price movements with trend
+    const volatility = 0.008; // Daily volatility
+    const trend = 0.0003; // Slight upward trend
+    let value = currentValue * (1 - (days * trend) - (Math.random() * 0.1 - 0.05));
+
+    for (let i = days; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dayName = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      // Random walk with trend
+      const randomChange = (Math.random() - 0.48) * volatility * value; // Slight positive bias
+      value = value + randomChange + (value * trend);
+
+      // Ensure we end close to current value
+      if (i === 0) value = currentValue;
+
+      dataPoints.push({
+        name: dayName,
+        value: Math.round(value * 100) / 100
+      });
+    }
+
+    return dataPoints;
+  }, [summary?.totalValue, selectedPeriod]);
 
   if (loading) {
     return (
@@ -182,7 +229,16 @@ const HoldingsPage = () => {
               </div>
               <div className="flex gap-2">
                 {['1W', '1M', 'YTD', '1Y'].map(period => (
-                  <button key={period} className="px-3 py-1 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors">{period}</button>
+                  <button
+                    key={period}
+                    onClick={() => setSelectedPeriod(period)}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${selectedPeriod === period
+                        ? 'bg-white/20 text-white'
+                        : 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white'
+                      }`}
+                  >
+                    {period}
+                  </button>
                 ))}
               </div>
             </div>

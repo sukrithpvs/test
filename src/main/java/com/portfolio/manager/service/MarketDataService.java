@@ -32,9 +32,10 @@ import java.util.*;
 public class MarketDataService {
 
     private final MarketCacheRepository cacheRepository;
+    private final FinnhubService finnhubService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final long CACHE_TTL_MINUTES = 60; // 1 hour
+    private static final long CACHE_TTL_MINUTES = 300; // 5 hours
     private static final String CACHE_KEY_GAINERS = "top_gainers";
     private static final String CACHE_KEY_LOSERS = "top_losers";
     private static final String CACHE_KEY_INDICES = "market_indices";
@@ -108,7 +109,7 @@ public class MarketDataService {
 
     // =============== SCHEDULED CACHE REFRESH ===============
 
-    @Scheduled(fixedRate = 3600000) // Every 1 hour
+    @Scheduled(fixedRate = 18000000) // Every 5 hours
     @Transactional
     public void refreshAllCaches() {
         log.info("Starting scheduled cache refresh at {}", LocalDateTime.now());
@@ -267,6 +268,7 @@ public class MarketDataService {
     public StockDetailResponse getStockDetail(String ticker) {
         String upperTicker = ticker.toUpperCase();
 
+        // Try Yahoo Finance first
         try {
             Stock stock = YahooFinance.get(upperTicker);
             if (stock != null && stock.getQuote() != null) {
@@ -276,6 +278,18 @@ public class MarketDataService {
             log.debug("Yahoo Finance unavailable for {}: {}", upperTicker, e.getMessage());
         }
 
+        // Fallback to Finnhub
+        try {
+            StockDetailResponse finnhubData = finnhubService.getStockQuote(upperTicker);
+            if (finnhubData != null && finnhubData.getPrice() != null) {
+                log.info("Using Finnhub data for {}", upperTicker);
+                return finnhubData;
+            }
+        } catch (Exception e) {
+            log.debug("Finnhub also unavailable for {}: {}", upperTicker, e.getMessage());
+        }
+
+        // Last resort: mock data
         return buildMockDetail(upperTicker);
     }
 

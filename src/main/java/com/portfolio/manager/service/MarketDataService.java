@@ -146,7 +146,7 @@ public class MarketDataService {
 
     // =============== SCHEDULED CACHE REFRESH ===============
 
-    @Scheduled(fixedRate = 18000000) // Every 5 hours
+    @Scheduled(initialDelay = 18000000, fixedRate = 18000000) // First run after 5 hours, then every 5 hours
     @Transactional
     public void refreshAllCaches() {
         log.info("Starting scheduled cache refresh at {}", LocalDateTime.now());
@@ -168,9 +168,11 @@ public class MarketDataService {
         try {
             Optional<MarketCache> cached = cacheRepository.findByCacheKey(key);
             if (cached.isPresent() && !cached.get().isExpired(CACHE_TTL_MINUTES)) {
-                log.debug("Returning cached data for key: {}", key);
+                log.info("✅ CACHE HIT for key: {} (cached at {})", key, cached.get().getUpdatedAt());
                 return (T) objectMapper.readValue(cached.get().getCacheValue(), new TypeReference<Object>() {
                 });
+            } else {
+                log.info("⚠️ CACHE MISS for key: {} - fetching fresh data", key);
             }
         } catch (Exception e) {
             log.warn("Cache read error for {}: {}", key, e.getMessage());
@@ -281,25 +283,80 @@ public class MarketDataService {
 
     // =============== STOCK DETAIL METHODS ===============
 
+    /**
+     * Get stock with 5-year history - uses cache for explore page stocks
+     * Cache key: stock_history_{ticker}
+     */
     public StockHistoryResponse getStockWithHistory(String ticker) {
         String upperTicker = ticker.toUpperCase();
-        log.info("Fetching stock data with 6-month history for: {}", upperTicker);
+        String cacheKey = "stock_history_" + upperTicker;
 
+        // Check if this is an explore page stock (known stock)
+        boolean isExploreStock = US_STOCKS.contains(upperTicker);
+
+        // For explore stocks, check cache first
+        if (isExploreStock) {
+            try {
+                Optional<MarketCache> cached = cacheRepository.findByCacheKey(cacheKey);
+                if (cached.isPresent() && !cached.get().isExpired(CACHE_TTL_MINUTES)) {
+                    log.debug("Returning cached 5-year history for: {}", upperTicker);
+                    return objectMapper.readValue(cached.get().getCacheValue(), StockHistoryResponse.class);
+                }
+            } catch (Exception e) {
+                log.warn("Cache read error for stock history {}: {}", upperTicker, e.getMessage());
+            }
+        }
+
+        // Fetch fresh data
+        log.info("Fetching stock data with 5-year history for: {}", upperTicker);
+        StockHistoryResponse data = fetchStockHistoryFromApi(upperTicker);
+
+        // Cache if it's an explore stock
+        if (isExploreStock) {
+            try {
+                String json = objectMapper.writeValueAsString(data);
+                MarketCache cache = cacheRepository.findByCacheKey(cacheKey)
+                        .orElse(MarketCache.builder().cacheKey(cacheKey).build());
+                cache.setCacheValue(json);
+                cache.setUpdatedAt(LocalDateTime.now());
+                cacheRepository.save(cache);
+                log.info("Cached 5-year history for: {}", upperTicker);
+            } catch (Exception e) {
+                log.error("Failed to cache stock history for {}: {}", upperTicker, e.getMessage());
+            }
+        }
+
+        return data;
+    }
+
+    /**
+     * Fetch fresh stock history from API (used for search - not cached)
+     */
+    public StockHistoryResponse getStockWithHistoryFresh(String ticker) {
+        String upperTicker = ticker.toUpperCase();
+        log.info("Fetching FRESH stock data with 5-year history for: {}", upperTicker);
+        return fetchStockHistoryFromApi(upperTicker);
+    }
+
+    /**
+     * Fetch stock history from Yahoo Finance API - 5 years of data
+     */
+    private StockHistoryResponse fetchStockHistoryFromApi(String ticker) {
         try {
             Calendar from = Calendar.getInstance();
-            from.add(Calendar.MONTH, -6);
+            from.add(Calendar.YEAR, -5); // Changed from 6 months to 5 YEARS
             Calendar to = Calendar.getInstance();
 
-            Stock stock = YahooFinance.get(upperTicker, from, to, Interval.DAILY);
+            Stock stock = YahooFinance.get(ticker, from, to, Interval.DAILY);
 
             if (stock != null && stock.getQuote() != null) {
                 return buildFromYahooWithHistory(stock);
             }
         } catch (Exception e) {
-            log.warn("Yahoo Finance unavailable for {}, using mock: {}", upperTicker, e.getMessage());
+            log.warn("Yahoo Finance unavailable for {}, using mock: {}", ticker, e.getMessage());
         }
 
-        return buildMockResponseWithHistory(upperTicker);
+        return buildMockResponseWithHistory(ticker);
     }
 
     public StockDetailResponse getStockDetail(String ticker) {
@@ -393,7 +450,7 @@ public class MarketDataService {
         double changePercent = mock.changePercent;
         double change = basePrice * changePercent / 100;
 
-        List<HistoricalDataPoint> historicalData = generateMockHistory(basePrice, 180);
+        List<HistoricalDataPoint> historicalData = generateMockHistory(basePrice, 1825); // 5 years of data
 
         return StockHistoryResponse.builder()
                 .ticker(ticker)

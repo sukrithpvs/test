@@ -4,6 +4,10 @@ import { ArrowRight, TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { holdingsApi, pricesApi } from '../api';
 
+// Frontend cache configuration
+const CACHE_KEY = 'investments_ribbon_cache';
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 const InvestmentsRibbon = () => {
   const [investments, setInvestments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +18,19 @@ const InvestmentsRibbon = () => {
 
   const loadInvestments = async () => {
     try {
+      // Check frontend cache first
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_TTL_MS) {
+          console.log('📦 InvestmentsRibbon: Using cached data');
+          setInvestments(data);
+          setLoading(false);
+          return;
+        }
+      }
+
+      console.log('🌐 InvestmentsRibbon: Fetching fresh data');
       setLoading(true);
       const holdings = await holdingsApi.getAll();
 
@@ -55,6 +72,12 @@ const InvestmentsRibbon = () => {
       }));
 
       setInvestments(enriched);
+
+      // Save to frontend cache
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+        data: enriched,
+        timestamp: Date.now()
+      }));
     } catch (err) {
       console.error('Failed to load investments:', err);
     } finally {

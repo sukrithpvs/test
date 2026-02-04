@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, TrendingUp, TrendingDown, Share2, Star, ChevronRight, Zap, DollarSign, Plus, Minus, Loader2 } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, Share2, Star, ChevronRight, Zap, DollarSign, Plus, Minus, Loader2, Newspaper, ExternalLink } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, Tooltip } from 'recharts';
 import { marketApi, ordersApi, watchlistApi, portfolioApi } from '../api';
 import MetricChip from '../components/MetricChip';
@@ -18,6 +18,8 @@ const StockDetailPage = () => {
   const [error, setError] = useState(null);
   const [cashBalance, setCashBalance] = useState(0);
   const [placing, setPlacing] = useState(false);
+  const [news, setNews] = useState([]);
+  const [loadingNews, setLoadingNews] = useState(true);
 
   const periods = ['1D', '1W', '1M', '3M', '6M', 'ALL'];
   const tabs = ['Overview', 'Technicals', 'Financials'];
@@ -26,6 +28,7 @@ const StockDetailPage = () => {
     if (ticker) {
       loadStockData();
       loadPortfolio();
+      loadStockNews();
     }
   }, [ticker]);
 
@@ -79,6 +82,18 @@ const StockDetailPage = () => {
       setCashBalance(parseFloat(summary.cashBalance || 0));
     } catch (err) {
       console.error('Failed to load portfolio:', err);
+    }
+  };
+
+  const loadStockNews = async () => {
+    try {
+      setLoadingNews(true);
+      const newsData = await marketApi.getStockNews(ticker);
+      setNews(newsData || []);
+    } catch (err) {
+      console.error('Failed to load stock news:', err);
+    } finally {
+      setLoadingNews(false);
     }
   };
 
@@ -505,6 +520,65 @@ const StockDetailPage = () => {
               </div>
             </motion.div>
           </div>
+        </div>
+
+        {/* News Section - Full Width */}
+        <div className="lg:col-span-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="glass rounded-2xl p-6 border border-white/10"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 rounded-lg bg-surreal-violet/20">
+                <Newspaper className="w-5 h-5 text-surreal-violet" />
+              </div>
+              <h3 className="text-xl font-bold text-white">{stock.ticker} News</h3>
+            </div>
+
+            {loadingNews ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              </div>
+            ) : news.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">
+                <Newspaper className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No recent news for {stock.ticker}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {news.slice(0, 6).map((item, idx) => (
+                  <a
+                    key={item.id || idx}
+                    href={item.link || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 hover:border-white/10 transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-surreal-violet/20 text-surreal-violet font-medium">
+                        {item.category || 'News'}
+                      </span>
+                      <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-surreal-cyan transition-colors" />
+                    </div>
+                    <h4 className="text-white font-medium text-sm mb-2 line-clamp-2 group-hover:text-surreal-cyan transition-colors">
+                      {item.title}
+                    </h4>
+                    {item.description && (
+                      <p className="text-gray-500 text-xs line-clamp-2 mb-2">
+                        {item.description}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span>{item.source || 'News'}</span>
+                      <span>{item.time}</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+          </motion.div>
         </div>
       </div>
     </motion.div>

@@ -4,6 +4,10 @@ import { TrendingUp, TrendingDown, Plus, ShoppingBag, Loader2 } from 'lucide-rea
 import { Link } from 'react-router-dom';
 import { marketApi, watchlistApi } from '../api';
 
+// Frontend cache configuration
+const CACHE_KEY = 'trending_stocks_cache';
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 const TrendingStocks = () => {
   const [stocks, setStocks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,6 +19,20 @@ const TrendingStocks = () => {
 
   const loadTrendingStocks = async () => {
     try {
+      // Check frontend cache first
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_TTL_MS) {
+          console.log('📦 TrendingStocks: Using cached data');
+          setStocks(data);
+          setLoading(false);
+          setError(null);
+          return;
+        }
+      }
+
+      console.log('🌐 TrendingStocks: Fetching fresh data');
       setLoading(true);
       const data = await marketApi.getTrending();
       // Transform API response to match component expectations
@@ -30,6 +48,12 @@ const TrendingStocks = () => {
       }));
       setStocks(transformed);
       setError(null);
+
+      // Save to frontend cache
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+        data: transformed,
+        timestamp: Date.now()
+      }));
     } catch (err) {
       console.error('Failed to load trending stocks:', err);
       setError('Failed to load data');

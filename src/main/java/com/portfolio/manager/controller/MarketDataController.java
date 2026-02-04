@@ -69,6 +69,12 @@ public class MarketDataController {
         return ResponseEntity.ok(newsService.getNews(refresh));
     }
 
+    @GetMapping("/news/{ticker}")
+    @Operation(summary = "Get news for a specific stock ticker")
+    public ResponseEntity<List<Map<String, Object>>> getStockNews(@PathVariable String ticker) {
+        return ResponseEntity.ok(newsService.getStockNews(ticker));
+    }
+
     @GetMapping("/search")
     @Operation(summary = "Search for stocks by ticker or name")
     public ResponseEntity<List<StockDetailResponse>> searchStocks(@RequestParam String q) {

@@ -8,6 +8,10 @@ import TrendingStocks from '../components/TrendingStocks';
 import NewsSection from '../components/NewsSection';
 import { marketApi } from '../api';
 
+// Frontend cache configuration
+const MF_CACHE_KEY = 'explore_mf_cache';
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 const ExplorePage = () => {
   const navigate = useNavigate();
   const [mutualFunds, setMutualFunds] = useState([]);
@@ -19,9 +23,29 @@ const ExplorePage = () => {
 
   const loadMutualFunds = async () => {
     try {
+      // Check frontend cache first
+      const cached = sessionStorage.getItem(MF_CACHE_KEY);
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_TTL_MS) {
+          console.log('📦 ExplorePage MF: Using cached data');
+          setMutualFunds(data);
+          setLoadingMF(false);
+          return;
+        }
+      }
+
+      console.log('🌐 ExplorePage MF: Fetching fresh data');
       setLoadingMF(true);
       const data = await marketApi.getMutualFunds();
-      setMutualFunds(data.slice(0, 4));
+      const slicedData = data.slice(0, 4);
+      setMutualFunds(slicedData);
+
+      // Save to frontend cache
+      sessionStorage.setItem(MF_CACHE_KEY, JSON.stringify({
+        data: slicedData,
+        timestamp: Date.now()
+      }));
     } catch (err) {
       console.error('Failed to load mutual funds:', err);
     } finally {

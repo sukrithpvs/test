@@ -4,6 +4,10 @@ import { Loader2 } from 'lucide-react';
 import { marketApi } from '../api';
 import DenseListItem from './DenseListItem';
 
+// Frontend cache configuration
+const CACHE_KEY = 'market_pulse_cache';
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 const MarketPulse = () => {
   const [activeTab, setActiveTab] = useState('gainers');
   const [movers, setMovers] = useState({ gainers: [], losers: [] });
@@ -15,16 +19,37 @@ const MarketPulse = () => {
 
   const loadMarketData = async () => {
     try {
+      // Check frontend cache first
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached);
+        if (Date.now() - timestamp < CACHE_TTL_MS) {
+          console.log('📦 MarketPulse: Using cached data');
+          setMovers(data);
+          setLoading(false);
+          return;
+        }
+      }
+
+      console.log('🌐 MarketPulse: Fetching fresh data');
       setLoading(true);
       const [gainersData, losersData] = await Promise.all([
         marketApi.getGainers(),
         marketApi.getLosers()
       ]);
 
-      setMovers({
+      const data = {
         gainers: transformMovers(gainersData),
         losers: transformMovers(losersData)
-      });
+      };
+
+      setMovers(data);
+
+      // Save to frontend cache
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+        data,
+        timestamp: Date.now()
+      }));
     } catch (err) {
       console.error('Failed to load market data:', err);
     } finally {

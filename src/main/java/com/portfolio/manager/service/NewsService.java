@@ -66,6 +66,194 @@ public class NewsService {
         return news;
     }
 
+    /**
+     * Get news for a specific stock ticker
+     * Tries Yahoo Finance RSS first, then Finnhub, then generates mock news
+     */
+    @Transactional
+    public List<Map<String, Object>> getStockNews(String ticker) {
+        String upperTicker = ticker.toUpperCase();
+        String cacheKey = "stock_news_" + upperTicker;
+
+        // Check cache first (shorter TTL for stock news - 1 hour)
+        Optional<MarketCache> cached = cacheRepository.findByCacheKey(cacheKey);
+        if (cached.isPresent() && !cached.get().isExpired(60)) { // 1 hour TTL
+            try {
+                log.info("✅ Returning cached news for {}", upperTicker);
+                return objectMapper.readValue(cached.get().getCacheValue(),
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class));
+            } catch (Exception e) {
+                log.warn("Failed to parse cached stock news: {}", e.getMessage());
+            }
+        }
+
+        log.info("Fetching news for stock: {}", upperTicker);
+
+        // Try Yahoo Finance RSS for specific stock
+        List<Map<String, Object>> news = fetchStockNewsFromYahoo(upperTicker);
+
+        // If Yahoo fails, try Finnhub
+        if (news.isEmpty()) {
+            news = fetchStockNewsFromFinnhub(upperTicker);
+        }
+
+        // If both fail, generate mock news
+        if (news.isEmpty()) {
+            news = generateMockStockNews(upperTicker);
+        }
+
+        // Cache the result
+        try {
+            String json = objectMapper.writeValueAsString(news);
+            MarketCache cache = cacheRepository.findByCacheKey(cacheKey)
+                    .orElse(MarketCache.builder().cacheKey(cacheKey).build());
+            cache.setCacheValue(json);
+            cache.setUpdatedAt(LocalDateTime.now());
+            cacheRepository.save(cache);
+        } catch (Exception e) {
+            log.error("Failed to cache stock news: {}", e.getMessage());
+        }
+
+        return news;
+    }
+
+    /**
+     * Fetch news for specific stock from Yahoo Finance RSS
+     */
+    private List<Map<String, Object>> fetchStockNewsFromYahoo(String ticker) {
+        List<Map<String, Object>> newsList = new ArrayList<>();
+
+        try {
+            String urlStr = "https://feeds.finance.yahoo.com/rss/2.0/headline?s=" + ticker + "&region=US&lang=en-US";
+            log.info("Fetching news from Yahoo Finance RSS for {}", ticker);
+
+            URL url = new URL(urlStr);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+            if (conn.getResponseCode() == 200) {
+                try (InputStream is = conn.getInputStream()) {
+                    String content = new String(is.readAllBytes());
+                    newsList = parseRssFeed(content, ticker);
+                }
+            } else {
+                log.warn("Yahoo RSS for {} returned status: {}", ticker, conn.getResponseCode());
+            }
+        } catch (Exception e) {
+            log.error("Failed to fetch Yahoo news for {}: {}", ticker, e.getMessage());
+        }
+
+        return newsList;
+    }
+
+    /**
+     * Fetch news from Finnhub API as fallback
+     */
+    private List<Map<String, Object>> fetchStockNewsFromFinnhub(String ticker) {
+        List<Map<String, Object>> newsList = new ArrayList<>();
+
+        try {
+            // Finnhub company news endpoint
+            String apiKey = "d612sv1r01qjrrugoe70d612sv1r01qjrrugoe7g";
+            String today = java.time.LocalDate.now().toString();
+            String weekAgo = java.time.LocalDate.now().minusDays(7).toString();
+            String urlStr = "https://finnhub.io/api/v1/company-news?symbol=" + ticker +
+                    "&from=" + weekAgo + "&to=" + today + "&token=" + apiKey;
+
+            log.info("Fetching news from Finnhub for {}", ticker);
+
+            URL url = new URL(urlStr);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+
+            if (conn.getResponseCode() == 200) {
+                try (InputStream is = conn.getInputStream()) {
+                    JsonNode jsonArray = objectMapper.readTree(is);
+
+                    int id = 1;
+                    for (int i = 0; i < Math.min(jsonArray.size(), 8); i++) {
+                        JsonNode item = jsonArray.get(i);
+
+                        Map<String, Object> news = new HashMap<>();
+                        news.put("id", id++);
+                        news.put("title", item.has("headline") ? item.get("headline").asText() : "News Update");
+                        news.put("source", item.has("source") ? item.get("source").asText() : "Finnhub");
+                        news.put("time", formatFinnhubTime(item.has("datetime") ? item.get("datetime").asLong() : 0));
+                        news.put("category", categorizeNews(item.has("headline") ? item.get("headline").asText() : ""));
+                        news.put("link", item.has("url") ? item.get("url").asText() : "");
+                        news.put("ticker", ticker);
+                        news.put("description",
+                                item.has("summary")
+                                        ? item.get("summary").asText().substring(0,
+                                                Math.min(200, item.get("summary").asText().length())) + "..."
+                                        : "");
+
+                        newsList.add(news);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to fetch Finnhub news for {}: {}", ticker, e.getMessage());
+        }
+
+        return newsList;
+    }
+
+    private String formatFinnhubTime(long timestamp) {
+        if (timestamp == 0)
+            return "Recently";
+        try {
+            java.time.Instant instant = java.time.Instant.ofEpochSecond(timestamp);
+            java.time.Duration diff = java.time.Duration.between(instant, java.time.Instant.now());
+
+            if (diff.toHours() < 1)
+                return diff.toMinutes() + " min ago";
+            if (diff.toHours() < 24)
+                return diff.toHours() + " hours ago";
+            return diff.toDays() + " days ago";
+        } catch (Exception e) {
+            return "Recently";
+        }
+    }
+
+    private List<Map<String, Object>> generateMockStockNews(String ticker) {
+        List<Map<String, Object>> news = new ArrayList<>();
+
+        String companyName = getCompanyName(ticker);
+
+        news.add(createNews(1, companyName + " Reports Strong Quarterly Results", "Earnings", "2 hours ago", "Reuters",
+                ticker));
+        news.add(createNews(2, companyName + " Announces New Product Line Expansion", "Business", "4 hours ago",
+                "Bloomberg", ticker));
+        news.add(createNews(3, "Analysts Upgrade " + ticker + " Stock Rating to Buy", "Analysis", "5 hours ago", "CNBC",
+                ticker));
+        news.add(createNews(4, companyName + " CEO Discusses Future Growth Strategy", "Interview", "8 hours ago", "WSJ",
+                ticker));
+        news.add(createNews(5, ticker + " Stock Sees Increased Trading Volume", "Market", "12 hours ago", "MarketWatch",
+                ticker));
+
+        return news;
+    }
+
+    private String getCompanyName(String ticker) {
+        Map<String, String> names = Map.of(
+                "AAPL", "Apple",
+                "MSFT", "Microsoft",
+                "GOOGL", "Alphabet",
+                "AMZN", "Amazon",
+                "TSLA", "Tesla",
+                "META", "Meta",
+                "NVDA", "NVIDIA",
+                "JPM", "JPMorgan",
+                "V", "Visa");
+        return names.getOrDefault(ticker, ticker);
+    }
+
     private List<Map<String, Object>> fetchNewsFromYahoo() {
         List<Map<String, Object>> newsList = new ArrayList<>();
 
@@ -85,7 +273,7 @@ public class NewsService {
                 try (InputStream is = conn.getInputStream()) {
                     // Parse RSS XML
                     String content = new String(is.readAllBytes());
-                    newsList = parseRssFeed(content);
+                    newsList = parseRssFeed(content, null);
                 }
             } else {
                 log.warn("Yahoo RSS returned status: {}", conn.getResponseCode());
@@ -102,7 +290,7 @@ public class NewsService {
         return newsList;
     }
 
-    private List<Map<String, Object>> parseRssFeed(String xml) {
+    private List<Map<String, Object>> parseRssFeed(String xml, String ticker) {
         List<Map<String, Object>> items = new ArrayList<>();
 
         try {

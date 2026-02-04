@@ -50,6 +50,9 @@ export const marketApi = {
     // Get market news (cached, use refresh=true for fresh data)
     getNews: (refresh = false) => fetchApi(`/market/news?refresh=${refresh}`),
 
+    // Get news for a specific stock ticker
+    getStockNews: (ticker) => fetchApi(`/market/news/${ticker}`),
+
     // Search stocks by ticker or name
     searchStocks: (query) => fetchApi(`/market/search?q=${encodeURIComponent(query)}`),
 

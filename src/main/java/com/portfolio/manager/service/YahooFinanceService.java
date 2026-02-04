@@ -1,6 +1,8 @@
 package com.portfolio.manager.service;
 
 import com.portfolio.manager.dto.response.PriceResponse;
+import com.portfolio.manager.dto.response.StockDetailResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import yahoofinance.Stock;
@@ -10,12 +12,20 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class YahooFinanceService {
 
-    // Mock prices for testing when Yahoo Finance API is unavailable
+    private final FinnhubService finnhubService;
+
+    // In-memory price cache with 5-minute TTL
+    private static final Map<String, CachedPrice> priceCache = new ConcurrentHashMap<>();
+    private static final long CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+    // Mock prices for testing when all APIs fail
     private static final Map<String, BigDecimal> MOCK_PRICES = new HashMap<>();
 
     static {
@@ -31,35 +41,85 @@ public class YahooFinanceService {
         MOCK_PRICES.put("WMT", new BigDecimal("165.80"));
     }
 
+    // Inner class for cached price entries
+    private static class CachedPrice {
+        final PriceResponse response;
+        final long timestamp;
+
+        CachedPrice(PriceResponse response) {
+            this.response = response;
+            this.timestamp = System.currentTimeMillis();
+        }
+
+        boolean isExpired() {
+            return System.currentTimeMillis() - timestamp > CACHE_TTL_MS;
+        }
+    }
+
     public PriceResponse getStockPrice(String ticker) {
         String upperTicker = ticker.toUpperCase();
-        log.info("Fetching price for ticker: {}", upperTicker);
 
+        // Check cache first
+        CachedPrice cached = priceCache.get(upperTicker);
+        if (cached != null && !cached.isExpired()) {
+            log.info("✅ PRICE CACHE HIT for {}: {}", upperTicker, cached.response.getPrice());
+            return cached.response;
+        }
+
+        log.info("Fetching price for ticker: {}", upperTicker);
+        PriceResponse response = null;
+
+        // 1. Try Yahoo Finance API first
         try {
-            // Try Yahoo Finance API first
             Stock stock = YahooFinance.get(upperTicker);
 
             if (stock != null && stock.getQuote() != null && stock.getQuote().getPrice() != null) {
                 BigDecimal price = stock.getQuote().getPrice();
                 String currency = stock.getCurrency() != null ? stock.getCurrency() : "USD";
 
-                log.info("Retrieved live price for {}: {} {}", upperTicker, price, currency);
+                log.info("✅ Yahoo Finance: {} = {} {}", upperTicker, price, currency);
 
-                return PriceResponse.builder()
+                response = PriceResponse.builder()
                         .ticker(upperTicker)
                         .price(price)
                         .currency(currency)
                         .timestamp(LocalDateTime.now())
                         .build();
-            } else {
-                log.warn("No price data available from Yahoo Finance for {}. Using mock data.", upperTicker);
-                return getMockPrice(upperTicker);
             }
         } catch (Exception e) {
-            log.warn("Error fetching price from Yahoo Finance for {}: {}. Using mock data.", upperTicker,
-                    e.getMessage());
-            return getMockPrice(upperTicker);
+            log.warn("Yahoo Finance failed for {}: {}", upperTicker, e.getMessage());
         }
+
+        // 2. If Yahoo fails, try Finnhub as fallback
+        if (response == null) {
+            try {
+                log.info("Trying Finnhub fallback for {}", upperTicker);
+                StockDetailResponse finnhubResponse = finnhubService.getStockQuote(upperTicker);
+
+                if (finnhubResponse != null && finnhubResponse.getPrice() != null) {
+                    log.info("✅ Finnhub fallback: {} = {}", upperTicker, finnhubResponse.getPrice());
+
+                    response = PriceResponse.builder()
+                            .ticker(upperTicker)
+                            .price(finnhubResponse.getPrice())
+                            .currency("USD")
+                            .timestamp(LocalDateTime.now())
+                            .build();
+                }
+            } catch (Exception e) {
+                log.warn("Finnhub fallback failed for {}: {}", upperTicker, e.getMessage());
+            }
+        }
+
+        // 3. If both fail, use mock data
+        if (response == null) {
+            response = getMockPrice(upperTicker);
+        }
+
+        // Cache the result
+        priceCache.put(upperTicker, new CachedPrice(response));
+
+        return response;
     }
 
     public BigDecimal getPrice(String ticker) {
@@ -70,7 +130,7 @@ public class YahooFinanceService {
     private PriceResponse getMockPrice(String ticker) {
         BigDecimal mockPrice = MOCK_PRICES.getOrDefault(ticker, generateRandomPrice());
 
-        log.info("Using mock price for {}: {}", ticker, mockPrice);
+        log.warn("⚠️ Using MOCK price for {}: {}", ticker, mockPrice);
 
         return PriceResponse.builder()
                 .ticker(ticker)

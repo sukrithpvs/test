@@ -1,28 +1,76 @@
+import OpenAI from "openai";
+
+const client = new OpenAI({
+    apiKey: import.meta.env.VITE_GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1",
+    dangerouslyAllowBrowser: true
+});
+
 export const chatService = {
     getResponse: async (message) => {
-        // Determine response based on keywords
-        const lowerMsg = message.toLowerCase();
+        try {
+            // 1. Fetch Context Data (Parallel fetch for speed)
+            const [portfolioRes, gainersRes, trendingRes] = await Promise.allSettled([
+                fetch('/api/portfolio/summary'),
+                fetch('/api/market/gainers'),
+                fetch('/api/market/trending')
+            ]);
 
-        if (lowerMsg.includes('portfolio') || lowerMsg.includes('balance')) {
-            return "Your portfolio is currently valued at $107,450.25 (up 2.4% today). Your cash balance is $24,500. Would you like a breakdown by sector?";
+            let portfolioContext = "Portfolio data unavailable.";
+            let marketContext = "Market data unavailable.";
+
+            if (portfolioRes.status === 'fulfilled' && portfolioRes.value.ok) {
+                const data = await portfolioRes.value.json();
+                portfolioContext = JSON.stringify(data);
+            }
+
+            if (gainersRes.status === 'fulfilled' && gainersRes.value.ok) {
+                const gainers = await gainersRes.value.json();
+                const trending = trendingRes.status === 'fulfilled' && trendingRes.value.ok ? await trendingRes.value.json() : [];
+                marketContext = `Top Gainers: ${JSON.stringify(gainers)}. Trending: ${JSON.stringify(trending)}`;
+            }
+
+            // 2. Construct System Prompt
+            const systemPrompt = `You are a financial advisor chatbot for the "LockedIn" portfolio app.
+            
+            Context Data:
+            User Portfolio: ${portfolioContext}
+            Market Trends: ${marketContext}
+
+            Instructions:
+            - Answer the user's question based on the provided context.
+            - Use **Markdown** formatting to make the response easy to read.
+            - **ALWAYS use bullet points** for lists (like top stocks, holdings, or recommendations).
+            - Use **bold text** for ticker symbols and key figures (e.g., **NVDA**, **+5%**).
+            - Keep paragraphs short and concise.
+            - If the user asks about their portfolio, use the Portfolio data.
+            - If the user asks what to buy/sell, refer to Market Trends and their current holdings (if relevant).
+            - Do not mention "JSON" or technical data formats to the user.
+            `;
+
+            // 3. Call Groq API
+            const response = await client.chat.completions.create({
+                model: "llama-3.3-70b-versatile", // Updated to supported model
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: message }
+                ],
+                temperature: 0.7,
+                max_tokens: 300
+            });
+
+            return response.choices[0]?.message?.content || "I couldn't generate a response.";
+
+        } catch (error) {
+            console.error("Chat Service Error:", error);
+            // Enhanced error reporting for debugging
+            if (error.message.includes("404")) {
+                return "Error: Could not connect to the Backend API. Please check if the Java server is running.";
+            }
+            if (error instanceof OpenAI.APIError) {
+                return `Error connecting to AI: ${error.message}`;
+            }
+            return `Connection Error: ${error.message || "Unknown error"}. Check console for details.`;
         }
-
-        if (lowerMsg.includes('gainers') || lowerMsg.includes('top')) {
-            return "Today's top gainers are:\n1. NVDA (+4.2%)\n2. TSLA (+1.8%)\n3. META (+1.2%)\n\nTech is leading the rally today!";
-        }
-
-        if (lowerMsg.includes('tesla') || lowerMsg.includes('tsla')) {
-            return "Tesla (TSLA) is trading at $248.75. It has strong momentum recently due to new delivery numbers. Analysts have a 'Buy' rating on it.";
-        }
-
-        if (lowerMsg.includes('risk') || lowerMsg.includes('safe')) {
-            return "Based on your holdings, about 65% of your portfolio is in high-growth tech stocks, which carries higher volatility. Consider diversifying into bonds or ETFs for more stability.";
-        }
-
-        if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
-            return "Hi there! I'm ready to help you analyze the market. What's on your mind?";
-        }
-
-        return "That's an interesting question. I'm currently in 'Demo Mode', so I have limited live analysis capabilities, but I can tell you about your portfolio, top movers, or specific tech stocks!";
     }
 };

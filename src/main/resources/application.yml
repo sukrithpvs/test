@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:h2:mem:portfolio_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
     username: root
-    password: 2005
+    password: Nusrath@123
     driver-class-name: org.h2.Driver
 
   jpa:

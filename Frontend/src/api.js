@@ -47,6 +47,12 @@ export const marketApi = {
     // Get stock with 6-month historical data
     getStockHistory: (ticker) => fetchApi(`/market/stock/${ticker}/history`),
 
+    // Get market news (cached, use refresh=true for fresh data)
+    getNews: (refresh = false) => fetchApi(`/market/news?refresh=${refresh}`),
+
+    // Search stocks by ticker or name
+    searchStocks: (query) => fetchApi(`/market/search?q=${encodeURIComponent(query)}`),
+
     // Get top mutual funds
     getMutualFunds: () => fetchApi('/market/mutualfunds'),
 

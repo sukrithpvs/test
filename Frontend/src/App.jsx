@@ -7,6 +7,7 @@ import OrdersPage from './pages/OrdersPage';
 import WatchlistPage from './pages/WatchlistPage';
 import StockDetailPage from './pages/StockDetailPage';
 import MutualFundsPage from './pages/MutualFundsPage';
+import MutualFundDetailPage from './pages/MutualFundDetailPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/watchlist" element={<WatchlistPage />} />
           <Route path="/mutualfunds" element={<MutualFundsPage />} />
+          <Route path="/mutualfund/:schemeCode" element={<MutualFundDetailPage />} />
           <Route path="/stock/:ticker" element={<StockDetailPage />} />
         </Routes>
       </AppLayout>
@@ -26,4 +28,5 @@ function App() {
 }
 
 export default App;
+
 

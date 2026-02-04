@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2, TrendingUp, Search } from 'lucide-react';
+import { ArrowLeft, Loader2, TrendingUp, Search, ChevronRight } from 'lucide-react';
 import { marketApi } from '../api';
+
+// Cache key for session storage
+const CACHE_KEY = 'mutualfunds_cache';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes frontend cache
 
 const MutualFundsPage = () => {
     const navigate = useNavigate();
@@ -15,11 +19,28 @@ const MutualFundsPage = () => {
     }, []);
 
     const loadFunds = async () => {
+        // Check session cache first
+        try {
+            const cached = sessionStorage.getItem(CACHE_KEY);
+            if (cached) {
+                const { data, timestamp } = JSON.parse(cached);
+                if (Date.now() - timestamp < CACHE_DURATION) {
+                    setFunds(data);
+                    setLoading(false);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.log('Cache miss');
+        }
+
+        // Fetch from API
         try {
             setLoading(true);
-            // Fetches all available mutual funds
             const data = await marketApi.getMutualFunds();
             setFunds(data);
+            // Cache the result
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
         } catch (err) {
             console.error('Failed to load funds:', err);
         } finally {
@@ -31,6 +52,10 @@ const MutualFundsPage = () => {
         fund.schemeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         fund.fundHouse?.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const handleFundClick = (schemeCode) => {
+        navigate(`/mutualfund/${schemeCode}`);
+    };
 
     return (
         <motion.div
@@ -84,7 +109,8 @@ const MutualFundsPage = () => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.05 }}
-                                className="glass p-6 rounded-xl border border-white/5 hover:bg-white/5 transition-all cursor-pointer group"
+                                onClick={() => handleFundClick(fund.schemeCode)}
+                                className="glass p-6 rounded-xl border border-white/5 hover:bg-white/5 hover:border-white/10 transition-all cursor-pointer group"
                             >
                                 <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                                     <div className="flex-1">
@@ -96,7 +122,7 @@ const MutualFundsPage = () => {
                                                 {fund.fundHouse}
                                             </span>
                                             <span className="px-2 py-0.5 rounded bg-white/5 border border-white/5 text-xs">
-                                                {fund.category || 'Equity'}
+                                                {fund.schemeCategory || 'Equity'}
                                             </span>
                                         </div>
                                     </div>
@@ -114,6 +140,7 @@ const MutualFundsPage = () => {
                                                 {parseFloat(fund.oneYearReturn || 0).toFixed(2)}%
                                             </div>
                                         </div>
+                                        <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-surreal-cyan group-hover:translate-x-1 transition-all" />
                                     </div>
                                 </div>
                             </motion.div>

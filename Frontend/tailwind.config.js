@@ -23,11 +23,7 @@ export default {
           pink: '#DB2777',
           cyan: '#06B6D4',
         },
-        // Surreal Light Theme
-        mist: {
-          50: '#F0F9FF',
-          100: '#E0F2FE',
-        },
+
         // Semantic Colors
         graphite: {
           50: '#1a1a1a',
@@ -44,7 +40,7 @@ export default {
       },
       backgroundImage: {
         'surreal-gradient-dark': 'linear-gradient(to bottom right, #030014, #1e1b4b, #312e81)',
-        'surreal-gradient-light': 'linear-gradient(to bottom right, #fdfbf7, #e0e7ff, #fae8ff)',
+
       },
       animation: {
         'float-slow': 'float 6s ease-in-out infinite',

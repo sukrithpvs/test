@@ -3,15 +3,15 @@ package com.portfolio.manager.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portfolio.manager.dto.response.StockDetailResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.time.LocalDateTime;
 
 /**
@@ -21,7 +21,9 @@ import java.time.LocalDateTime;
 @Slf4j
 public class FinnhubService {
 
-    private static final String API_KEY = "d612sv1r01qjrrugoe70d612sv1r01qjrrugoe7g";
+    @Value("${finnhub.api-key:d612sv1r01qjrrugoe70d612sv1r01qjrrugoe7g}")
+    private String apiKey;
+
     private static final String BASE_URL = "https://finnhub.io/api/v1";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -30,11 +32,10 @@ public class FinnhubService {
      */
     public StockDetailResponse getStockQuote(String ticker) {
         try {
-            String urlStr = BASE_URL + "/quote?symbol=" + ticker.toUpperCase() + "&token=" + API_KEY;
+            String urlStr = BASE_URL + "/quote?symbol=" + ticker.toUpperCase() + "&token=" + apiKey;
             log.info("Fetching from Finnhub: {}", ticker);
 
-            URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection) URI.create(urlStr).toURL().openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);
@@ -63,10 +64,13 @@ public class FinnhubService {
                     return null;
                 }
 
+                // Get company name
+                String name = getCompanyName(ticker);
+
                 return StockDetailResponse.builder()
                         .ticker(ticker.toUpperCase())
-                        .name(ticker.toUpperCase())
-                        .exchange("NASDAQ")
+                        .name(name)
+                        .exchange("US")
                         .currency("USD")
                         .price(currentPrice)
                         .open(open)
@@ -90,9 +94,8 @@ public class FinnhubService {
      */
     public String getCompanyName(String ticker) {
         try {
-            String urlStr = BASE_URL + "/stock/profile2?symbol=" + ticker.toUpperCase() + "&token=" + API_KEY;
-            URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            String urlStr = BASE_URL + "/stock/profile2?symbol=" + ticker.toUpperCase() + "&token=" + apiKey;
+            HttpURLConnection conn = (HttpURLConnection) URI.create(urlStr).toURL().openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(3000);
             conn.setReadTimeout(3000);

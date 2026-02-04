@@ -6,6 +6,7 @@ import com.portfolio.manager.dto.response.StockDetailResponse;
 import com.portfolio.manager.dto.response.StockHistoryResponse;
 import com.portfolio.manager.service.MarketDataService;
 import com.portfolio.manager.service.MutualFundService;
+import com.portfolio.manager.service.NewsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class MarketDataController {
 
     private final MarketDataService marketDataService;
     private final MutualFundService mutualFundService;
+    private final NewsService newsService;
 
     @GetMapping("/stock/{ticker}")
     @Operation(summary = "Get detailed stock information with OHLCV and fundamentals")
@@ -58,6 +60,19 @@ public class MarketDataController {
     @Operation(summary = "Get trending stocks")
     public ResponseEntity<List<MarketMoverResponse>> getTrendingStocks() {
         return ResponseEntity.ok(marketDataService.getTrendingStocks());
+    }
+
+    @GetMapping("/news")
+    @Operation(summary = "Get market news (cached, use refresh=true to force refresh)")
+    public ResponseEntity<List<Map<String, Object>>> getNews(
+            @RequestParam(defaultValue = "false") boolean refresh) {
+        return ResponseEntity.ok(newsService.getNews(refresh));
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search for stocks by ticker or name")
+    public ResponseEntity<List<StockDetailResponse>> searchStocks(@RequestParam String q) {
+        return ResponseEntity.ok(marketDataService.searchStocks(q));
     }
 
     @GetMapping("/mutualfunds")

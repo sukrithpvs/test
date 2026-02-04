@@ -1,20 +1,32 @@
 package com.portfolio.manager.service;
 
 import com.portfolio.manager.dto.response.MutualFundResponse;
+import com.portfolio.manager.entity.MarketCache;
+import com.portfolio.manager.repository.MarketCacheRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MutualFundService {
 
     private static final String MFAPI_BASE = "https://api.mfapi.in/mf/";
+    private static final String CACHE_KEY_TOP_FUNDS = "top_mutual_funds";
+    private static final long CACHE_TTL_MINUTES = 300; // 5 hours
+
+    private final MarketCacheRepository cacheRepository;
     private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Popular Indian Mutual Fund Scheme Codes
     private static final Map<String, String> POPULAR_FUNDS = new LinkedHashMap<>();
@@ -32,27 +44,67 @@ public class MutualFundService {
         POPULAR_FUNDS.put("118269", "Canara Robeco Bluechip Fund");
     }
 
+    @Transactional(readOnly = true)
     public List<MutualFundResponse> getTopMutualFunds() {
+        // Check cache first
+        Optional<MarketCache> cached = cacheRepository.findByCacheKey(CACHE_KEY_TOP_FUNDS);
+        if (cached.isPresent() && !cached.get().isExpired(CACHE_TTL_MINUTES)) {
+            try {
+                log.debug("Returning cached mutual funds");
+                return objectMapper.readValue(cached.get().getCacheValue(),
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, MutualFundResponse.class));
+            } catch (Exception e) {
+                log.warn("Failed to parse cached funds: {}", e.getMessage());
+            }
+        }
+
+        // Fetch fresh data
         log.info("Fetching top mutual funds from MFapi.in");
         List<MutualFundResponse> funds = new ArrayList<>();
 
         for (Map.Entry<String, String> entry : POPULAR_FUNDS.entrySet()) {
             try {
-                MutualFundResponse fund = getMutualFundDetails(entry.getKey());
+                MutualFundResponse fund = fetchMutualFundFromApi(entry.getKey());
                 if (fund != null) {
                     funds.add(fund);
                 }
             } catch (Exception e) {
                 log.warn("Failed to fetch fund {}: {}", entry.getKey(), e.getMessage());
-                // Add mock data
                 funds.add(createMockFund(entry.getKey(), entry.getValue()));
             }
         }
 
+        // Cache the result
+        cacheTopFunds(funds);
+
         return funds;
     }
 
+    @Transactional
+    protected void cacheTopFunds(List<MutualFundResponse> funds) {
+        try {
+            String json = objectMapper.writeValueAsString(funds);
+            MarketCache cache = cacheRepository.findByCacheKey(CACHE_KEY_TOP_FUNDS)
+                    .orElse(MarketCache.builder().cacheKey(CACHE_KEY_TOP_FUNDS).build());
+            cache.setCacheValue(json);
+            cache.setUpdatedAt(LocalDateTime.now());
+            cacheRepository.save(cache);
+            log.info("Cached {} mutual funds", funds.size());
+        } catch (Exception e) {
+            log.error("Failed to cache mutual funds: {}", e.getMessage());
+        }
+    }
+
     public MutualFundResponse getMutualFundDetails(String schemeCode) {
+        // Try to fetch full details from API
+        MutualFundResponse fund = fetchMutualFundFromApi(schemeCode);
+        if (fund != null) {
+            return fund;
+        }
+        return createMockFund(schemeCode, POPULAR_FUNDS.getOrDefault(schemeCode, "Unknown Fund"));
+    }
+
+    private MutualFundResponse fetchMutualFundFromApi(String schemeCode) {
         try {
             String url = MFAPI_BASE + schemeCode;
             log.info("Fetching mutual fund data from: {}", url);
@@ -74,7 +126,7 @@ public class MutualFundService {
                         .schemeCategory((String) meta.get("scheme_category"))
                         .nav(new BigDecimal(latestNav))
                         .navDate(navDate)
-                        .oneYearReturn(calculateReturn(data, 252)) // Approx trading days in a year
+                        .oneYearReturn(calculateReturn(data, 252))
                         .threeYearReturn(calculateReturn(data, 756))
                         .fiveYearReturn(calculateReturn(data, 1260))
                         .build();
@@ -82,8 +134,7 @@ public class MutualFundService {
         } catch (Exception e) {
             log.error("Error fetching mutual fund {}: {}", schemeCode, e.getMessage());
         }
-
-        return createMockFund(schemeCode, POPULAR_FUNDS.getOrDefault(schemeCode, "Unknown Fund"));
+        return null;
     }
 
     private BigDecimal calculateReturn(List<Map<String, Object>> data, int days) {
@@ -127,7 +178,6 @@ public class MutualFundService {
     }
 
     public List<MutualFundResponse> searchMutualFunds(String query) {
-        // For demo, filter from popular funds
         log.info("Searching mutual funds with query: {}", query);
         return getTopMutualFunds().stream()
                 .filter(f -> f.getSchemeName().toLowerCase().contains(query.toLowerCase()) ||

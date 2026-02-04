@@ -23,12 +23,7 @@ export const ThemeProvider = ({ children }) => {
         // Remove all theme classes
         root.classList.remove('light-mode', 'black-mode', 'dark');
 
-        if (theme === 'light') {
-            root.classList.add('light-mode');
-            body.style.backgroundColor = '#ffffff';
-            html.style.backgroundColor = '#ffffff';
-            root.style.setProperty('--bg-primary', '#ffffff');
-        } else if (theme === 'black') {
+        if (theme === 'black') {
             root.classList.add('black-mode');
             // Force pure black everywhere
             body.style.backgroundColor = '#000000';

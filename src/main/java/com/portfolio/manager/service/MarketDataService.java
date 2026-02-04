@@ -107,6 +107,43 @@ public class MarketDataService {
         return getCachedOrFetch(CACHE_KEY_TRENDING, this::fetchTrendingStocks);
     }
 
+    /**
+     * Search stocks by ticker or name - tries to fetch ANY ticker from
+     * Yahoo/Finnhub
+     */
+    public List<StockDetailResponse> searchStocks(String query) {
+        String upperQuery = query.toUpperCase().trim();
+        List<StockDetailResponse> results = new ArrayList<>();
+
+        // Always try the query as a direct ticker first (for ANY stock like VIX, SPY,
+        // etc.)
+        if (upperQuery.length() >= 1 && upperQuery.length() <= 6) {
+            try {
+                StockDetailResponse stock = getStockDetail(upperQuery);
+                if (stock != null && stock.getPrice() != null) {
+                    results.add(stock);
+                }
+            } catch (Exception e) {
+                log.debug("Could not fetch stock for query: {}", upperQuery);
+            }
+        }
+
+        // Also add matches from known stocks list
+        for (String ticker : US_STOCKS) {
+            if (ticker.contains(upperQuery) && results.stream().noneMatch(r -> r.getTicker().equals(ticker))) {
+                try {
+                    results.add(getStockDetail(ticker));
+                    if (results.size() >= 10)
+                        break;
+                } catch (Exception e) {
+                    log.debug("Failed to get details for: {}", ticker);
+                }
+            }
+        }
+
+        return results;
+    }
+
     // =============== SCHEDULED CACHE REFRESH ===============
 
     @Scheduled(fixedRate = 18000000) // Every 5 hours

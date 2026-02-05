@@ -265,7 +265,12 @@ const StockDetailPage = () => {
                     contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.95)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px' }}
                     itemStyle={{ color: '#fff' }}
                     formatter={(value) => [`$${value.toFixed(2)}`, 'Price']}
-                    labelFormatter={(label) => label}
+                    labelFormatter={(label, payload) => {
+                      if (payload && payload[0] && payload[0].payload) {
+                        return payload[0].payload.date;
+                      }
+                      return label;
+                    }}
                   />
                   <Area
                     type="monotone"
@@ -310,11 +315,12 @@ const StockDetailPage = () => {
               >
                 {activeTab === 'Overview' && (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                       <MetricChip label="Market Cap" value={formatMarketCap(stock.marketCap)} />
                       <MetricChip label="P/E Ratio" value={stock.peRatio.toFixed(2)} />
                       <MetricChip label="Volume" value={formatVolume(stock.volume)} />
                       <MetricChip label="52W High" value={`$${stock.fiftyTwoWeekHigh.toFixed(2)}`} />
+                      <MetricChip label="52W Low" value={`$${stock.fiftyTwoWeekLow.toFixed(2)}`} />
                     </div>
 
                     <div className="glass-card p-6 rounded-xl border border-white/5">
